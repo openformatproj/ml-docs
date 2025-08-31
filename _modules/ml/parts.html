@@ -1,0 +1,403 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ml.parts &mdash; ml 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            ml
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../engine_api.html">Engine API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../parts_api.html">Parts API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../event_sources_api.html">Event Sources API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tracer_api.html">Tracer API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ml</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ml.parts</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ml.parts</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">Part</span><span class="p">,</span> <span class="n">Port</span><span class="p">,</span> <span class="n">EventQueue</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+
+<div class="viewcode-block" id="EventToDataSynchronizer">
+<a class="viewcode-back" href="../../parts_api.html#ml.parts.EventToDataSynchronizer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EventToDataSynchronizer</span><span class="p">(</span><span class="n">Part</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A generic behavioral part that synchronizes an asynchronous event to the</span>
+<span class="sd">    synchronous dataflow domain.</span>
+
+<span class="sd">    It consumes an event from a specified input EventQueue, extracts its</span>
+<span class="sd">    payload, and sets that payload on a specified output Port. This is a</span>
+<span class="sd">    common pattern for converting triggers (like a timer tick) into data</span>
+<span class="sd">    that can be processed by dataflow-driven parts in the next simulation step.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">input_queue_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_port_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the EventToDataSynchronizer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            identifier: The unique name for this part.</span>
+<span class="sd">            input_queue_id: The identifier for the input EventQueue.</span>
+<span class="sd">            output_port_id: The identifier for the output Port.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># One input event queue</span>
+        <span class="n">event_queues</span> <span class="o">=</span> <span class="p">[</span><span class="n">EventQueue</span><span class="p">(</span><span class="n">input_queue_id</span><span class="p">,</span> <span class="n">EventQueue</span><span class="o">.</span><span class="n">IN</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+        
+        <span class="c1"># A single output data port</span>
+        <span class="n">ports</span> <span class="o">=</span> <span class="p">[</span><span class="n">Port</span><span class="p">(</span><span class="n">output_port_id</span><span class="p">,</span> <span class="n">Port</span><span class="o">.</span><span class="n">OUT</span><span class="p">)]</span>
+            
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">identifier</span><span class="o">=</span><span class="n">identifier</span><span class="p">,</span> <span class="n">ports</span><span class="o">=</span><span class="n">ports</span><span class="p">,</span> <span class="n">event_queues</span><span class="o">=</span><span class="n">event_queues</span><span class="p">)</span>
+
+        <span class="c1"># Store the IDs for use in the behavior method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input_queue_id</span> <span class="o">=</span> <span class="n">input_queue_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output_port_id</span> <span class="o">=</span> <span class="n">output_port_id</span>
+
+<div class="viewcode-block" id="EventToDataSynchronizer.behavior">
+<a class="viewcode-back" href="../../parts_api.html#ml.parts.EventToDataSynchronizer.behavior">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">behavior</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pops a single event from the input queue and sets its payload on the</span>
+<span class="sd">        output port.</span>
+
+<span class="sd">        This method is called by the engine when the part is scheduled to run,</span>
+<span class="sd">        which by default happens when its input event queue is not empty.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">event_queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_event_queue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_queue_id</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">event_queue</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="n">event_queue</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            
+            <span class="c1"># Set the payload on the single output port</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_port_id</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Operator">
+<a class="viewcode-back" href="../../parts_api.html#ml.parts.Operator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Operator</span><span class="p">(</span><span class="n">Part</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A generic, stateless behavioral part that applies a user-defined function</span>
+<span class="sd">    to its inputs.</span>
+
+<span class="sd">    It waits for all of its input ports to receive new data, then calls the</span>
+<span class="sd">    provided operation `op` with the input values and sets the result on its</span>
+<span class="sd">    single output port.</span>
+
+<span class="sd">    Ports:</span>
+<span class="sd">        - `in_0`, `in_1`, ...: A number of input ports defined by `inputs`.</span>
+<span class="sd">        - `out`: A single output port.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">op</span><span class="p">:</span> <span class="nb">callable</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the Operator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            identifier: The unique name for this part.</span>
+<span class="sd">            inputs: The number of input ports to create.</span>
+<span class="sd">            op: A callable that takes `inputs` arguments and returns a single value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ports</span> <span class="o">=</span> <span class="p">[</span><span class="n">Port</span><span class="p">(</span><span class="s1">&#39;out&#39;</span><span class="p">,</span> <span class="n">Port</span><span class="o">.</span><span class="n">OUT</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
+            <span class="n">ports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Port</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;in_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">Port</span><span class="o">.</span><span class="n">IN</span><span class="p">))</span>
+        
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">identifier</span><span class="o">=</span><span class="n">identifier</span><span class="p">,</span>
+            <span class="n">ports</span><span class="o">=</span><span class="n">ports</span><span class="p">,</span>
+            <span class="n">scheduling_condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">part</span><span class="p">:</span> <span class="nb">all</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">is_updated</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">part</span><span class="o">.</span><span class="n">get_ports</span><span class="p">(</span><span class="n">Port</span><span class="o">.</span><span class="n">IN</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">op</span> <span class="o">=</span> <span class="n">op</span>
+
+<div class="viewcode-block" id="Operator.behavior">
+<a class="viewcode-back" href="../../parts_api.html#ml.parts.Operator.behavior">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">behavior</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Collects values from all input ports, applies the user-defined</span>
+<span class="sd">        operation to them, and sets the result on the output port.</span>
+
+<span class="sd">        The part&#39;s custom scheduling condition ensures this method only runs</span>
+<span class="sd">        when all input ports have been updated, so no `is_updated()` checks</span>
+<span class="sd">        are needed here.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">input_values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">):</span>
+            <span class="n">input_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;in_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+        <span class="n">out_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="p">(</span><span class="o">*</span><span class="n">input_values</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;out&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">out_payload</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="PID">
+<a class="viewcode-back" href="../../parts_api.html#ml.parts.PID">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PID</span><span class="p">(</span><span class="n">Part</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A behavioral part implementing a standard PID (Proportional-Integral-Derivative)</span>
+<span class="sd">    controller.</span>
+
+<span class="sd">    It calculates an actuation value based on an error signal and the passage</span>
+<span class="sd">    of time. The time step `dt` is calculated dynamically from successive</span>
+<span class="sd">    values on the `time` input port.</span>
+
+<span class="sd">    Ports:</span>
+<span class="sd">        - `time` (IN): Receives the current simulation time.</span>
+<span class="sd">        - `error` (IN): Receives the current error signal (setpoint - measurement).</span>
+<span class="sd">        - `kp_in` (IN): Receives updates for the proportional gain.</span>
+<span class="sd">        - `ki_in` (IN): Receives updates for the integral gain.</span>
+<span class="sd">        - `kd_in` (IN): Receives updates for the derivative gain.</span>
+<span class="sd">        - `actuation` (OUT): Outputs the calculated control signal.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">initial_kp</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">initial_ki</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">initial_kd</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">initial_integral</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">initial_error</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">integral_min</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">integral_max</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the PID controller.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            identifier: The unique name for this part.</span>
+<span class="sd">            initial_kp: The initial proportional gain.</span>
+<span class="sd">            initial_ki: The initial integral gain.</span>
+<span class="sd">            initial_kd: The initial derivative gain.</span>
+<span class="sd">            initial_integral: The starting value for the integral term.</span>
+<span class="sd">            initial_error: The error value from the previous step, used for the</span>
+<span class="sd">                           first derivative calculation.</span>
+<span class="sd">            integral_min: The minimum value to which the integral term will be clamped.</span>
+<span class="sd">            integral_max: The maximum value to which the integral term will be clamped.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ports</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Port</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">Port</span><span class="o">.</span><span class="n">IN</span><span class="p">),</span>
+            <span class="n">Port</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="n">Port</span><span class="o">.</span><span class="n">IN</span><span class="p">),</span>
+            <span class="n">Port</span><span class="p">(</span><span class="s1">&#39;kp_in&#39;</span><span class="p">,</span> <span class="n">Port</span><span class="o">.</span><span class="n">IN</span><span class="p">),</span>
+            <span class="n">Port</span><span class="p">(</span><span class="s1">&#39;ki_in&#39;</span><span class="p">,</span> <span class="n">Port</span><span class="o">.</span><span class="n">IN</span><span class="p">),</span>
+            <span class="n">Port</span><span class="p">(</span><span class="s1">&#39;kd_in&#39;</span><span class="p">,</span> <span class="n">Port</span><span class="o">.</span><span class="n">IN</span><span class="p">),</span>
+            <span class="n">Port</span><span class="p">(</span><span class="s1">&#39;actuation&#39;</span><span class="p">,</span> <span class="n">Port</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">identifier</span><span class="o">=</span><span class="n">identifier</span><span class="p">,</span>
+            <span class="n">ports</span><span class="o">=</span><span class="n">ports</span><span class="p">,</span>
+            <span class="n">scheduling_condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">part</span><span class="p">:</span> <span class="n">part</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">is_updated</span><span class="p">()</span> <span class="ow">and</span> <span class="n">part</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">is_updated</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">integral</span> <span class="o">=</span> <span class="n">initial_integral</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_error</span> <span class="o">=</span> <span class="n">initial_error</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kp</span> <span class="o">=</span> <span class="n">initial_kp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ki</span> <span class="o">=</span> <span class="n">initial_ki</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kd</span> <span class="o">=</span> <span class="n">initial_kd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">integral_min</span> <span class="o">=</span> <span class="n">integral_min</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">integral_max</span> <span class="o">=</span> <span class="n">integral_max</span>
+
+<div class="viewcode-block" id="PID.behavior">
+<a class="viewcode-back" href="../../parts_api.html#ml.parts.PID.behavior">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">behavior</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the PID output. The scheduler ensures both `time` and `error`</span>
+<span class="sd">        ports are updated before this method is called. It handles the initial</span>
+<span class="sd">        state gracefully and calculates `dt` dynamically. Gain values are updated</span>
+<span class="sd">        whenever their respective ports receive new data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Update gains if new values have been provided (they are optional)</span>
+        <span class="n">kp_port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;kp_in&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kp_port</span><span class="o">.</span><span class="n">is_updated</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kp</span> <span class="o">=</span> <span class="n">kp_port</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+        <span class="n">ki_port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;ki_in&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ki_port</span><span class="o">.</span><span class="n">is_updated</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ki</span> <span class="o">=</span> <span class="n">ki_port</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+        <span class="n">kd_port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;kd_in&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kd_port</span><span class="o">.</span><span class="n">is_updated</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kd</span> <span class="o">=</span> <span class="n">kd_port</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+        <span class="c1"># The scheduler guarantees that &#39;time&#39; and &#39;error&#39; are updated.</span>
+        <span class="n">current_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># First run: only P-term is active, I and D are zero.</span>
+            <span class="c1"># Set a default output to satisfy the dataflow contract.</span>
+            <span class="n">actuation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kp</span> <span class="o">*</span> <span class="n">error</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;actuation&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">actuation</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Subsequent runs: full PID calculation.</span>
+            <span class="n">t_step</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_time</span>
+            <span class="k">if</span> <span class="n">t_step</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">integral</span> <span class="o">+=</span> <span class="n">error</span> <span class="o">*</span> <span class="nb">type</span><span class="p">(</span><span class="n">error</span><span class="p">)(</span><span class="n">t_step</span><span class="p">)</span>
+                
+                <span class="c1"># Clamp the integral term to prevent windup</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">integral_max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">integral</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integral</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">integral_max</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">integral_min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">integral</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integral</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">integral_min</span><span class="p">)</span>
+
+                <span class="n">derivative</span> <span class="o">=</span> <span class="p">(</span><span class="n">error</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_error</span><span class="p">)</span> <span class="o">/</span> <span class="nb">type</span><span class="p">(</span><span class="n">error</span><span class="p">)(</span><span class="n">t_step</span><span class="p">)</span>
+                <span class="n">actuation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kp</span> <span class="o">*</span> <span class="n">error</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ki</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">integral</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">kd</span> <span class="o">*</span> <span class="n">derivative</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;actuation&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">actuation</span><span class="p">)</span>
+            <span class="c1"># If t_step is not &gt; 0, we don&#39;t set a new actuation value.</span>
+
+        <span class="c1"># Update state for the next step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_error</span> <span class="o">=</span> <span class="n">error</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_time</span> <span class="o">=</span> <span class="n">current_time</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Control_Element">
+<a class="viewcode-back" href="../../parts_api.html#ml.parts.Control_Element">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Control_Element</span><span class="p">(</span><span class="n">Part</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A structural part that composes a PID controller and an error calculation</span>
+<span class="sd">    operator to form a complete, standard control loop element.</span>
+
+<span class="sd">    This part is a reusable block for feedback control systems.</span>
+
+<span class="sd">    Ports:</span>
+<span class="sd">        - `time` (IN): The current simulation time, passed to the PID.</span>
+<span class="sd">        - `setpoint` (IN): The desired value for the system.</span>
+<span class="sd">        - `measure` (IN): The current measured value from the system.</span>
+<span class="sd">        - `kp_in` (IN): For dynamically updating the proportional gain.</span>
+<span class="sd">        - `ki_in` (IN): For dynamically updating the integral gain.</span>
+<span class="sd">        - `kd_in` (IN): For dynamically updating the derivative gain.</span>
+<span class="sd">        - `actuation` (OUT): The final control signal to be sent to the plant.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">execution_strategy</span><span class="p">:</span> <span class="nb">callable</span><span class="p">,</span> <span class="n">initial_kp</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">initial_ki</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">initial_kd</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">initial_integral</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">initial_error</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">integral_min</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">integral_max</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the Control_Element.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            identifier: The unique name for this part.</span>
+<span class="sd">            execution_strategy: The strategy for executing inner parts (e.g., sequential_execution).</span>
+<span class="sd">            initial_kp: The initial proportional gain for the inner PID.</span>
+<span class="sd">            initial_ki: The initial integral gain for the inner PID.</span>
+<span class="sd">            initial_kd: The initial derivative gain for the inner PID.</span>
+<span class="sd">            initial_integral: The starting value for the PID&#39;s integral term.</span>
+<span class="sd">            initial_error: The starting error for the PID&#39;s derivative term.</span>
+<span class="sd">            integral_min: The minimum value for the PID&#39;s integral clamp.</span>
+<span class="sd">            integral_max: The maximum value for the PID&#39;s integral clamp.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ports</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Port</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">Port</span><span class="o">.</span><span class="n">IN</span><span class="p">),</span>
+            <span class="n">Port</span><span class="p">(</span><span class="s1">&#39;setpoint&#39;</span><span class="p">,</span> <span class="n">Port</span><span class="o">.</span><span class="n">IN</span><span class="p">),</span>
+            <span class="n">Port</span><span class="p">(</span><span class="s1">&#39;measure&#39;</span><span class="p">,</span> <span class="n">Port</span><span class="o">.</span><span class="n">IN</span><span class="p">),</span>
+            <span class="n">Port</span><span class="p">(</span><span class="s1">&#39;kp_in&#39;</span><span class="p">,</span> <span class="n">Port</span><span class="o">.</span><span class="n">IN</span><span class="p">),</span>
+            <span class="n">Port</span><span class="p">(</span><span class="s1">&#39;ki_in&#39;</span><span class="p">,</span> <span class="n">Port</span><span class="o">.</span><span class="n">IN</span><span class="p">),</span>
+            <span class="n">Port</span><span class="p">(</span><span class="s1">&#39;kd_in&#39;</span><span class="p">,</span> <span class="n">Port</span><span class="o">.</span><span class="n">IN</span><span class="p">),</span>
+            <span class="n">Port</span><span class="p">(</span><span class="s1">&#39;actuation&#39;</span><span class="p">,</span> <span class="n">Port</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;pid&#39;</span> <span class="p">:</span> <span class="n">PID</span><span class="p">(</span><span class="s1">&#39;pid&#39;</span><span class="p">,</span> <span class="n">initial_kp</span><span class="p">,</span> <span class="n">initial_ki</span><span class="p">,</span> <span class="n">initial_kd</span><span class="p">,</span> <span class="n">initial_integral</span><span class="p">,</span> <span class="n">initial_error</span><span class="p">,</span> <span class="n">integral_min</span><span class="o">=</span><span class="n">integral_min</span><span class="p">,</span> <span class="n">integral_max</span><span class="o">=</span><span class="n">integral_max</span><span class="p">),</span>
+            <span class="s1">&#39;error&#39;</span> <span class="p">:</span> <span class="n">Operator</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">in_0</span><span class="p">,</span> <span class="n">in_1</span><span class="p">:</span> <span class="n">in_0</span> <span class="o">-</span> <span class="n">in_1</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">identifier</span><span class="o">=</span><span class="n">identifier</span><span class="p">,</span>
+            <span class="n">ports</span><span class="o">=</span><span class="n">ports</span><span class="p">,</span>
+            <span class="n">parts</span><span class="o">=</span><span class="n">parts</span><span class="p">,</span>
+            <span class="n">execution_strategy</span><span class="o">=</span><span class="n">execution_strategy</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Get references to inner parts for clarity</span>
+        <span class="n">pid_part</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_part</span><span class="p">(</span><span class="s1">&#39;pid&#39;</span><span class="p">)</span>
+        <span class="n">error_part</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_part</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">)</span>
+
+        <span class="c1"># --- Wire the components together ---</span>
+
+        <span class="c1"># Downward connections from parent&#39;s IN ports to children&#39;s IN ports</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">),</span> <span class="n">pid_part</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;setpoint&#39;</span><span class="p">),</span> <span class="n">error_part</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;in_0&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;measure&#39;</span><span class="p">),</span> <span class="n">error_part</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;in_1&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;kp_in&#39;</span><span class="p">),</span> <span class="n">pid_part</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;kp_in&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;ki_in&#39;</span><span class="p">),</span> <span class="n">pid_part</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;ki_in&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;kd_in&#39;</span><span class="p">),</span> <span class="n">pid_part</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;kd_in&#39;</span><span class="p">))</span>
+
+        <span class="c1"># Peer-to-peer connection between children</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">error_part</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;out&#39;</span><span class="p">),</span> <span class="n">pid_part</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">))</span>
+
+        <span class="c1"># Upward connection from child&#39;s OUT port to parent&#39;s OUT port</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">pid_part</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;actuation&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_port</span><span class="p">(</span><span class="s1">&#39;actuation&#39;</span><span class="p">))</span></div>
+
+        
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, openformatproj.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

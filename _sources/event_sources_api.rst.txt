@@ -1,0 +1,9 @@
+Event Sources API
+=================
+
+These are the built-in event sources.
+
+.. automodule:: ml.event_sources
+   :members:
+   :undoc-members:
+   :show-inheritance:
