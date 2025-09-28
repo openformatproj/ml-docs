@@ -1,0 +1,291 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ml.tracer &mdash; ml 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            ml
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../engine_api.html">Engine API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../parts_api.html">Parts API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../event_sources_api.html">Event Sources API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tracer_api.html">Tracer API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ml</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ml.tracer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ml.tracer</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TextIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogLevel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">conf</span>
+
+<span class="c1"># A structured representation of a single log entry.</span>
+<span class="n">LogRecord</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;LogRecord&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">,</span> <span class="s1">&#39;thread_name&#39;</span><span class="p">,</span> <span class="s1">&#39;component_id&#39;</span><span class="p">,</span> <span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">,</span> <span class="s1">&#39;level&#39;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="Tracer">
+<a class="viewcode-back" href="../../tracer_api.html#ml.tracer.Tracer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Tracer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A thread-safe, centralized logging utility for the simulation engine.</span>
+
+<span class="sd">    It buffers log records and periodically flushes them to the console and/or</span>
+<span class="sd">    a file in a formatted, column-aligned manner.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_log_buffer</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">LogRecord</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+    <span class="n">_thread</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_stop_event</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+    <span class="n">_level</span><span class="p">:</span> <span class="n">LogLevel</span> <span class="o">=</span> <span class="n">LogLevel</span><span class="o">.</span><span class="n">INFO</span>
+    <span class="n">_flush_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">_output_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_log_to_console</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">_file_handle</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_error_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_error_file_handle</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Tracer.start">
+<a class="viewcode-back" href="../../tracer_api.html#ml.tracer.Tracer.start">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="n">LogLevel</span><span class="p">,</span> <span class="n">flush_interval_seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">output_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">log_to_console</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">error_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;errors.log&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes and starts the tracer thread.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            level: The minimum log level to record.</span>
+<span class="sd">            flush_interval_seconds: How often to flush logs.</span>
+<span class="sd">            output_file: An optional file path to write logs to.</span>
+<span class="sd">            log_to_console: If True, logs will also be printed to the console.</span>
+<span class="sd">            error_file: An optional file path to write detailed exception</span>
+<span class="sd">                        tracebacks to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_thread</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">TRACER_ERROR_ALREADY_STARTED</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_level</span> <span class="o">=</span> <span class="n">level</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_flush_interval</span> <span class="o">=</span> <span class="n">flush_interval_seconds</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_output_file</span> <span class="o">=</span> <span class="n">output_file</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_log_to_console</span> <span class="o">=</span> <span class="n">log_to_console</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_error_file</span> <span class="o">=</span> <span class="n">error_file</span>
+            <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_output_file</span><span class="p">:</span>
+                <span class="c1"># Clear the file on start</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_file_handle</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_output_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_error_file</span><span class="p">:</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_error_file_handle</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_error_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_run</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">conf</span><span class="o">.</span><span class="n">TRACER_THREAD_NAME</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Tracer.stop">
+<a class="viewcode-back" href="../../tracer_api.html#ml.tracer.Tracer.stop">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stops the tracer thread and performs a final flush of all logs.&quot;&quot;&quot;</span>
+        <span class="n">thread_to_join</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_thread</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+            <span class="n">thread_to_join</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_thread</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_thread</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="k">if</span> <span class="n">thread_to_join</span><span class="p">:</span>
+            <span class="n">thread_to_join</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        
+        <span class="c1"># Final flush after the thread has stopped</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_flush_logs</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_file_handle</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_file_handle</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_file_handle</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_error_file_handle</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_error_file_handle</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_error_file_handle</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="Tracer.log">
+<a class="viewcode-back" href="../../tracer_api.html#ml.tracer.Tracer.log">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">log</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="n">LogLevel</span><span class="p">,</span> <span class="n">component_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a log record to the buffer.</span>
+
+<span class="sd">        This method is thread-safe.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            level: The severity level of the log.</span>
+<span class="sd">            component_id: The identifier of the component logging the event.</span>
+<span class="sd">            event: The name of the event being logged.</span>
+<span class="sd">            details: An optional dictionary of structured data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_thread</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">level</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_level</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="k">return</span>
+        
+        <span class="n">record</span> <span class="o">=</span> <span class="n">LogRecord</span><span class="p">(</span>
+            <span class="n">timestamp</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span>
+            <span class="n">thread_name</span><span class="o">=</span><span class="n">threading</span><span class="o">.</span><span class="n">current_thread</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="n">conf</span><span class="o">.</span><span class="n">THREAD_UNKNOWN_NAME</span><span class="p">,</span>
+            <span class="n">component_id</span><span class="o">=</span><span class="n">component_id</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">,</span>
+            <span class="n">details</span><span class="o">=</span><span class="n">details</span> <span class="ow">or</span> <span class="p">{},</span>
+            <span class="n">level</span><span class="o">=</span><span class="n">level</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_log_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span></div>
+
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The main loop for the tracer thread, flushing logs periodically.&quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_flush_interval</span><span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_flush_logs</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_flush_logs</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Formats and writes all buffered logs to the configured outputs.</span>
+<span class="sd">        This method calculates column widths dynamically for alignment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logs_to_flush</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">LogRecord</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_log_buffer</span><span class="p">:</span>
+                <span class="k">return</span>
+            
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_log_buffer</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
+            <span class="n">logs_to_flush</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_log_buffer</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_log_buffer</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">logs_to_flush</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">max_thread_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">thread_name</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">logs_to_flush</span><span class="p">)</span>
+        <span class="n">max_id_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">component_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">logs_to_flush</span><span class="p">)</span>
+        <span class="n">max_event_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">event</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">logs_to_flush</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">logs_to_flush</span><span class="p">:</span>
+            <span class="n">is_exception</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span> <span class="ow">and</span> <span class="n">record</span><span class="o">.</span><span class="n">event</span> <span class="o">==</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_EVENT_EXCEPTION</span> <span class="ow">and</span> <span class="s1">&#39;traceback&#39;</span> <span class="ow">in</span> <span class="n">record</span><span class="o">.</span><span class="n">details</span>
+
+            <span class="k">if</span> <span class="n">is_exception</span> <span class="ow">and</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_error_file_handle</span><span class="p">:</span>
+                <span class="c1"># Write full traceback to error log</span>
+                <span class="n">error_header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;--- Exception at </span><span class="si">{</span><span class="n">record</span><span class="o">.</span><span class="n">timestamp</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">record</span><span class="o">.</span><span class="n">component_id</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">record</span><span class="o">.</span><span class="n">thread_name</span><span class="si">}</span><span class="s2">) ---</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_error_file_handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">error_header</span><span class="p">)</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_error_file_handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;traceback&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_error_file_handle</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+                <span class="c1"># Modify details for the main log to be less verbose</span>
+                <span class="n">main_log_details</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">main_log_details</span><span class="p">[</span><span class="s1">&#39;traceback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_TRACEBACK_REDIRECT</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_error_file</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">main_log_details</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">details</span>
+
+            <span class="n">time_sec_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">TRACER_TIMESTAMP_FORMAT</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">timestamp</span><span class="p">))</span>
+            <span class="n">milliseconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">record</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">%</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+            <span class="n">time_str</span> <span class="o">=</span> <span class="n">time_sec_str</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">TRACER_MILLISECOND_FORMAT</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">milliseconds</span><span class="p">)</span>
+            <span class="n">details_str</span> <span class="o">=</span> <span class="s2">&quot; | &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">main_log_details</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+            <span class="n">thread_str</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">thread_name</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">max_thread_width</span><span class="p">)</span>
+            <span class="n">id_str</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">component_id</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">max_id_width</span><span class="p">)</span>
+            <span class="n">event_str</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">max_event_width</span><span class="p">)</span>
+            <span class="n">log_line</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">] [</span><span class="si">{</span><span class="n">thread_str</span><span class="si">}</span><span class="s2">] [</span><span class="si">{</span><span class="n">id_str</span><span class="si">}</span><span class="s2">] [</span><span class="si">{</span><span class="n">event_str</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">details_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_log_to_console</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">log_line</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_file_handle</span><span class="p">:</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_file_handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">log_line</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_file_handle</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_file_handle</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, openformatproj.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
