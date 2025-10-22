@@ -111,23 +111,18 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A high-precision, drift-free timer loop.&quot;&quot;&quot;</span>
-        <span class="n">Tracer</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_LEVEL_TIMER_LIFECYCLE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_identifier</span><span class="p">(),</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_EVENT_RUN_LOOP_START</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;interval&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__interval</span><span class="p">,</span> <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__duration_seconds</span><span class="p">})</span>
+        <span class="n">Tracer</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_LEVEL_TIMER_LIFECYCLE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_identifier</span><span class="p">(),</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_EVENT_LIFECYCLE_THREAD_START</span><span class="p">,</span> <span class="p">{</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_INTERVAL</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__interval</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_DURATION</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__duration_seconds</span><span class="p">})</span>
         <span class="n">start_wall_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">sim_time</span> <span class="o">=</span> <span class="mf">0.0</span>
 
-        <span class="c1"># Emit the initial t=0 event</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__lock</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__current_time</span> <span class="o">=</span> <span class="n">sim_time</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">sim_time</span><span class="p">)</span>
-
-        <span class="c1"># Immediately check for auto-stop if duration is 0 or very small</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__duration_seconds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">sim_time</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__duration_seconds</span><span class="p">:</span>
-            <span class="n">Tracer</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_LEVEL_TIMER_DURATION_REACHED</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_identifier</span><span class="p">(),</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_EVENT_TIMER_DURATION_REACHED</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;sim_time&quot;</span><span class="p">:</span> <span class="n">sim_time</span><span class="p">})</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
-            <span class="k">return</span>
-
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span><span class="p">():</span>
-            <span class="n">sim_time</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__interval</span>
+            <span class="c1"># Check for auto-stop condition before sleeping.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__duration_seconds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">sim_time</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__duration_seconds</span><span class="p">:</span>
+                <span class="n">Tracer</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_LEVEL_TIMER_DURATION_REACHED</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_identifier</span><span class="p">(),</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_EVENT_TIMER_DURATION_REACHED</span><span class="p">,</span> <span class="p">{</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_SIM_TIME</span><span class="p">:</span> <span class="n">sim_time</span><span class="p">})</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+                <span class="k">break</span>
+
+            <span class="c1"># Calculate the wall time for the current simulation time and sleep until then.</span>
             <span class="n">next_tick_wall_time</span> <span class="o">=</span> <span class="n">start_wall_time</span> <span class="o">+</span> <span class="n">sim_time</span>
             
             <span class="n">sleep_duration</span> <span class="o">=</span> <span class="n">next_tick_wall_time</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -140,13 +135,9 @@
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__lock</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__current_time</span> <span class="o">=</span> <span class="n">sim_time</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">sim_time</span><span class="p">)</span>
+            <span class="n">sim_time</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__interval</span>
 
-            <span class="c1"># Check for auto-stop condition</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__duration_seconds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">sim_time</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__duration_seconds</span><span class="p">:</span>
-                <span class="n">Tracer</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_LEVEL_TIMER_DURATION_REACHED</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_identifier</span><span class="p">(),</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_EVENT_TIMER_DURATION_REACHED</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;sim_time&quot;</span><span class="p">:</span> <span class="n">sim_time</span><span class="p">})</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
-                <span class="k">break</span>
-        <span class="n">Tracer</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_LEVEL_TIMER_LIFECYCLE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_identifier</span><span class="p">(),</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_EVENT_RUN_LOOP_END</span><span class="p">)</span>
+        <span class="n">Tracer</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_LEVEL_TIMER_LIFECYCLE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_identifier</span><span class="p">(),</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_EVENT_LIFECYCLE_THREAD_END</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Timer.get_current_time">
 <a class="viewcode-back" href="../../event_sources_api.html#ml.event_sources.Timer.get_current_time">[docs]</a>
@@ -171,7 +162,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, openformatproj.</p>
+    <p>&#169; Copyright .</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

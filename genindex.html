@@ -44,6 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="engine_api.html">Engine API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parts_api.html">Parts API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="event_sources_api.html">Event Sources API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategies_api.html">Strategies API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tracer_api.html">Tracer API</a></li>
 </ul>
 
@@ -96,6 +97,10 @@
       <li><a href="engine_api.html#ml.engine.Part.add_hook">add_hook() (ml.engine.Part method)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="tracer_api.html#ml.tracer.analyze_trace_log">analyze_trace_log() (in module ml.tracer)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="B">B</h2>
@@ -123,12 +128,14 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="engine_api.html#ml.engine.EventQueue.clear">clear() (ml.engine.EventQueue method)</a>
 </li>
-      <li><a href="tracer_api.html#ml.tracer.LogRecord.component_id">component_id (ml.tracer.LogRecord attribute)</a>
+      <li><a href="tracer_api.html#ml.tracer.TimedEvent.complete">complete() (ml.tracer.TimedEvent method)</a>
 </li>
-      <li><a href="engine_api.html#ml.engine.Part.connect">connect() (ml.engine.Part method)</a>
+      <li><a href="tracer_api.html#ml.tracer.LogRecord.component_id">component_id (ml.tracer.LogRecord attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="engine_api.html#ml.engine.Part.connect">connect() (ml.engine.Part method)</a>
+</li>
       <li><a href="engine_api.html#ml.engine.Part.connect_event_queue">connect_event_queue() (ml.engine.Part method)</a>
 </li>
       <li><a href="engine_api.html#ml.engine.Part.connect_event_source">connect_event_source() (ml.engine.Part method)</a>
@@ -157,18 +164,22 @@
 </li>
       <li><a href="engine_api.html#ml.engine.EventQueue">EventQueue (class in ml.engine)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="engine_api.html#ml.engine.EventQueue.EmptyError">EventQueue.EmptyError</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="engine_api.html#ml.engine.EventQueue.FullError">EventQueue.FullError</a>
 </li>
       <li><a href="engine_api.html#ml.engine.EventSource">EventSource (class in ml.engine)</a>
 </li>
       <li><a href="parts_api.html#ml.parts.EventToDataSynchronizer">EventToDataSynchronizer (class in ml.parts)</a>
 </li>
-      <li><a href="engine_api.html#ml.engine.Part.execute">execute() (ml.engine.Part method)</a>
+      <li><a href="strategies_api.html#ml.strategies.execute">execute() (in module ml.strategies)</a>
+
+      <ul>
+        <li><a href="engine_api.html#ml.engine.Part.execute">(ml.engine.Part method)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -312,6 +323,13 @@
         <li><a href="parts_api.html#module-ml.parts">module</a>
 </li>
       </ul></li>
+      <li>
+    ml.strategies
+
+      <ul>
+        <li><a href="strategies_api.html#module-ml.strategies">module</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li>
@@ -330,6 +348,8 @@
         <li><a href="event_sources_api.html#module-ml.event_sources">ml.event_sources</a>
 </li>
         <li><a href="parts_api.html#module-ml.parts">ml.parts</a>
+</li>
+        <li><a href="strategies_api.html#module-ml.strategies">ml.strategies</a>
 </li>
         <li><a href="tracer_api.html#module-ml.tracer">ml.tracer</a>
 </li>
@@ -394,6 +414,8 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="strategies_api.html#ml.strategies.sequential_execution">sequential_execution() (in module ml.strategies)</a>
+</li>
       <li><a href="engine_api.html#ml.engine.Port.set">set() (ml.engine.Port method)</a>
 </li>
       <li><a href="engine_api.html#ml.engine.EventSource.start">start() (ml.engine.EventSource method)</a>
@@ -426,10 +448,12 @@
 </li>
       <li><a href="tracer_api.html#ml.tracer.LogRecord.thread_name">thread_name (ml.tracer.LogRecord attribute)</a>
 </li>
-      <li><a href="event_sources_api.html#ml.event_sources.Timer">Timer (class in ml.event_sources)</a>
+      <li><a href="tracer_api.html#ml.tracer.TimedEvent">TimedEvent (class in ml.tracer)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="event_sources_api.html#ml.event_sources.Timer">Timer (class in ml.event_sources)</a>
+</li>
       <li><a href="tracer_api.html#ml.tracer.LogRecord.timestamp">timestamp (ml.tracer.LogRecord attribute)</a>
 </li>
       <li><a href="engine_api.html#ml.engine.Part.trace_log">trace_log() (ml.engine.Part method)</a>

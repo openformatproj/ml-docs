@@ -56,12 +56,17 @@
 <li class="toctree-l3"><a class="reference internal" href="#ml.tracer.LogRecord.timestamp"><code class="docutils literal notranslate"><span class="pre">LogRecord.timestamp</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.tracer.TimedEvent"><code class="docutils literal notranslate"><span class="pre">TimedEvent</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.TimedEvent.complete"><code class="docutils literal notranslate"><span class="pre">TimedEvent.complete()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#ml.tracer.Tracer"><code class="docutils literal notranslate"><span class="pre">Tracer</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#ml.tracer.Tracer.log"><code class="docutils literal notranslate"><span class="pre">Tracer.log()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ml.tracer.Tracer.start"><code class="docutils literal notranslate"><span class="pre">Tracer.start()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ml.tracer.Tracer.stop"><code class="docutils literal notranslate"><span class="pre">Tracer.stop()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.tracer.analyze_trace_log"><code class="docutils literal notranslate"><span class="pre">analyze_trace_log()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -136,6 +141,19 @@
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ml.tracer.TimedEvent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.tracer.</span></span><span class="sig-name descname"><span class="pre">TimedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tick</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ml/tracer.html#TimedEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ml.tracer.TimedEvent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a timed event with a start, end, and children.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.tracer.TimedEvent.complete">
+<span class="sig-name descname"><span class="pre">complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">end_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_tick</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ml/tracer.html#TimedEvent.complete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ml.tracer.TimedEvent.complete" title="Link to this definition"></a></dt>
+<dd><p>Marks the event as complete and calculates its duration.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ml.tracer.Tracer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.tracer.</span></span><span class="sig-name descname"><span class="pre">Tracer</span></span><a class="reference internal" href="_modules/ml/tracer.html#Tracer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ml.tracer.Tracer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -144,7 +162,7 @@
 a file in a formatted, column-aligned manner.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ml.tracer.Tracer.log">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LogLevel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ml/tracer.html#Tracer.log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ml.tracer.Tracer.log" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LogLevel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tick</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ml/tracer.html#Tracer.log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ml.tracer.Tracer.log" title="Link to this definition"></a></dt>
 <dd><p>Adds a log record to the buffer.</p>
 <p>This method is thread-safe.</p>
 <dl class="field-list simple">
@@ -153,7 +171,9 @@ a file in a formatted, column-aligned manner.</p>
 <li><p><strong>level</strong> – The severity level of the log.</p></li>
 <li><p><strong>component_id</strong> – The identifier of the component logging the event.</p></li>
 <li><p><strong>event</strong> – The name of the event being logged.</p></li>
-<li><p><strong>details</strong> – An optional dictionary of structured data.</p></li>
+<li><p><strong>details</strong> – An optional dictionary of structured data. If a string is
+passed, it will be wrapped in a ‘message’ key.</p></li>
+<li><p><strong>tick</strong> – The optional simulation tick number.</p></li>
 </ul>
 </dd>
 </dl>
@@ -183,6 +203,21 @@ tracebacks to.</p></li>
 <dd><p>Stops the tracer thread and performs a final flush of all logs.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ml.tracer.analyze_trace_log">
+<span class="sig-prename descclassname"><span class="pre">ml.tracer.</span></span><span class="sig-name descname"><span class="pre">analyze_trace_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'text'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ml/tracer.html#analyze_trace_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ml.tracer.analyze_trace_log" title="Link to this definition"></a></dt>
+<dd><p>Main analysis function. Parses the log and prints a performance report.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>log_path</strong> – Path to the simulation trace log file.</p></li>
+<li><p><strong>output_format</strong> – The desired output format. Can be ‘text’, ‘json’, or ‘json:perfetto’.</p></li>
+<li><p><strong>output_file</strong> – Optional path to write the output to. If None, prints to stdout.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

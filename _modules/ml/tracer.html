@@ -75,9 +75,13 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TextIO</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span><span class="p">,</span> <span class="n">defaultdict</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">builtins</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogLevel</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">conf</span>
 
 <span class="c1"># A structured representation of a single log entry.</span>
@@ -95,6 +99,8 @@
     <span class="n">_log_buffer</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">LogRecord</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
     <span class="n">_thread</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_active_events</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># Tracks active events by their unique ID</span>
+    <span class="n">_event_counter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">_stop_event</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
     <span class="n">_level</span><span class="p">:</span> <span class="n">LogLevel</span> <span class="o">=</span> <span class="n">LogLevel</span><span class="o">.</span><span class="n">INFO</span>
     <span class="n">_flush_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
@@ -172,7 +178,7 @@
 <div class="viewcode-block" id="Tracer.log">
 <a class="viewcode-back" href="../../tracer_api.html#ml.tracer.Tracer.log">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">log</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="n">LogLevel</span><span class="p">,</span> <span class="n">component_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">log</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="n">LogLevel</span><span class="p">,</span> <span class="n">component_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tick</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds a log record to the buffer.</span>
 
@@ -182,21 +188,51 @@
 <span class="sd">            level: The severity level of the log.</span>
 <span class="sd">            component_id: The identifier of the component logging the event.</span>
 <span class="sd">            event: The name of the event being logged.</span>
-<span class="sd">            details: An optional dictionary of structured data.</span>
+<span class="sd">            details: An optional dictionary of structured data. If a string is</span>
+<span class="sd">                     passed, it will be wrapped in a &#39;message&#39; key.</span>
+<span class="sd">            tick: The optional simulation tick number.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_thread</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">level</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_level</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
-            <span class="k">return</span>
+            <span class="k">return</span> <span class="kc">None</span> <span class="c1"># No log entry created, so return None</span>
         
-        <span class="n">record</span> <span class="o">=</span> <span class="n">LogRecord</span><span class="p">(</span>
-            <span class="n">timestamp</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span>
-            <span class="n">thread_name</span><span class="o">=</span><span class="n">threading</span><span class="o">.</span><span class="n">current_thread</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="n">conf</span><span class="o">.</span><span class="n">THREAD_UNKNOWN_NAME</span><span class="p">,</span>
-            <span class="n">component_id</span><span class="o">=</span><span class="n">component_id</span><span class="p">,</span>
-            <span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">,</span>
-            <span class="n">details</span><span class="o">=</span><span class="n">details</span> <span class="ow">or</span> <span class="p">{},</span>
-            <span class="n">level</span><span class="o">=</span><span class="n">level</span>
-        <span class="p">)</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">thread_name</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">current_thread</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="n">conf</span><span class="o">.</span><span class="n">THREAD_UNKNOWN_NAME</span>
+        
+        <span class="c1"># Ensure details is a mutable dictionary</span>
+        <span class="n">log_details</span> <span class="o">=</span> <span class="n">details</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">details</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_MESSAGE</span><span class="p">:</span> <span class="n">details</span><span class="p">}</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">tick</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log_details</span><span class="p">[</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_TICK</span><span class="p">]</span> <span class="o">=</span> <span class="n">tick</span>
+
+        <span class="c1"># Assign a unique event_id for START events</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_START&#39;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_event_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">event_id</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_event_counter</span>
+            <span class="n">log_details</span><span class="p">[</span><span class="n">conf</span><span class="o">.</span><span class="n">TRACER_KEY_EVENT_ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">event_id</span> <span class="c1"># Add event_id to the details dictionary</span>
+            <span class="c1"># Store the start event details for later lookup on _END</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_active_events</span><span class="p">[</span><span class="n">event_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_TICK</span><span class="p">:</span> <span class="n">tick</span><span class="p">}</span>
+
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_END&#39;</span><span class="p">):</span>
+            <span class="n">event_id</span> <span class="o">=</span> <span class="n">log_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">TRACER_KEY_EVENT_ID</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">event_id</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_active_events</span><span class="p">:</span>
+                <span class="n">start_event_details</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_active_events</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">event_id</span><span class="p">)</span>
+                <span class="c1"># The tick from the start event becomes the start_tick</span>
+                <span class="n">log_details</span><span class="p">[</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_START_TICK</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_event_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_TICK</span><span class="p">)</span>
+                <span class="c1"># The tick from this _END call becomes the end_tick</span>
+                <span class="n">log_details</span><span class="p">[</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_END_TICK</span><span class="p">]</span> <span class="o">=</span> <span class="n">tick</span>
+
+        <span class="c1"># Create the LogRecord for internal buffering</span>
+        <span class="n">record</span> <span class="o">=</span> <span class="n">LogRecord</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">thread_name</span><span class="p">,</span> <span class="n">component_id</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">log_details</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
-            <span class="bp">cls</span><span class="o">.</span><span class="n">_log_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span></div>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_log_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+        
+        <span class="c1"># Return a dictionary representation of the log entry for external use (e.g., parent_event_id)</span>
+        <span class="c1"># This ensures the caller gets the full details, including the event_id if it&#39;s a START event.</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">conf</span><span class="o">.</span><span class="n">TRACER_KEY_TIMESTAMP</span><span class="p">:</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">TRACER_KEY_THREAD_NAME</span><span class="p">:</span> <span class="n">thread_name</span><span class="p">,</span>
+            <span class="n">conf</span><span class="o">.</span><span class="n">TRACER_KEY_COMPONENT_ID</span><span class="p">:</span> <span class="n">component_id</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">TRACER_KEY_ACTION</span><span class="p">:</span> <span class="n">event</span><span class="p">,</span>
+            <span class="n">conf</span><span class="o">.</span><span class="n">TRACER_KEY_DETAILS</span><span class="p">:</span> <span class="n">log_details</span>
+        <span class="p">}</span></div>
 
 
     <span class="nd">@classmethod</span>
@@ -228,25 +264,29 @@
         <span class="n">max_event_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">event</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">logs_to_flush</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">logs_to_flush</span><span class="p">:</span>
-            <span class="n">is_exception</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span> <span class="ow">and</span> <span class="n">record</span><span class="o">.</span><span class="n">event</span> <span class="o">==</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_EVENT_EXCEPTION</span> <span class="ow">and</span> <span class="s1">&#39;traceback&#39;</span> <span class="ow">in</span> <span class="n">record</span><span class="o">.</span><span class="n">details</span>
+            <span class="n">is_exception</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="n">LogLevel</span><span class="o">.</span><span class="n">ERROR</span> <span class="ow">and</span> <span class="n">record</span><span class="o">.</span><span class="n">event</span> <span class="o">==</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_EVENT_EXCEPTION</span> <span class="ow">and</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_TRACEBACK</span> <span class="ow">in</span> <span class="n">record</span><span class="o">.</span><span class="n">details</span>
 
             <span class="k">if</span> <span class="n">is_exception</span> <span class="ow">and</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_error_file_handle</span><span class="p">:</span>
                 <span class="c1"># Write full traceback to error log</span>
                 <span class="n">error_header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;--- Exception at </span><span class="si">{</span><span class="n">record</span><span class="o">.</span><span class="n">timestamp</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">record</span><span class="o">.</span><span class="n">component_id</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">record</span><span class="o">.</span><span class="n">thread_name</span><span class="si">}</span><span class="s2">) ---</span><span class="se">\n</span><span class="s2">&quot;</span>
                 <span class="bp">cls</span><span class="o">.</span><span class="n">_error_file_handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">error_header</span><span class="p">)</span>
-                <span class="bp">cls</span><span class="o">.</span><span class="n">_error_file_handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;traceback&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_error_file_handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_TRACEBACK</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="bp">cls</span><span class="o">.</span><span class="n">_error_file_handle</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
                 <span class="c1"># Modify details for the main log to be less verbose</span>
                 <span class="n">main_log_details</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-                <span class="n">main_log_details</span><span class="p">[</span><span class="s1">&#39;traceback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_TRACEBACK_REDIRECT</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_error_file</span><span class="p">)</span>
+                <span class="n">main_log_details</span><span class="p">[</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_TRACEBACK</span><span class="p">]</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_TRACEBACK_REDIRECT</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_error_file</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">main_log_details</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">details</span>
 
-            <span class="n">time_sec_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">TRACER_TIMESTAMP_FORMAT</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">timestamp</span><span class="p">))</span>
-            <span class="n">milliseconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">record</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">%</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
-            <span class="n">time_str</span> <span class="o">=</span> <span class="n">time_sec_str</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">TRACER_MILLISECOND_FORMAT</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">milliseconds</span><span class="p">)</span>
-            <span class="n">details_str</span> <span class="o">=</span> <span class="s2">&quot; | &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">main_log_details</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+            <span class="n">dt_object</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
+            <span class="n">time_str</span> <span class="o">=</span> <span class="n">dt_object</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">TRACER_TIMESTAMP_FORMAT</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">main_log_details</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="c1"># Always write the full details to the log file for parsing.</span>
+                <span class="n">details_str</span> <span class="o">=</span> <span class="s2">&quot; | &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">main_log_details</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">details_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">main_log_details</span><span class="p">)</span>
             <span class="n">thread_str</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">thread_name</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">max_thread_width</span><span class="p">)</span>
             <span class="n">id_str</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">component_id</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">max_id_width</span><span class="p">)</span>
             <span class="n">event_str</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">max_event_width</span><span class="p">)</span>
@@ -259,6 +299,344 @@
         <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_file_handle</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_file_handle</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
 
+
+
+<span class="c1"># --- Trace Analysis Functionality ---</span>
+
+<span class="c1"># Regex to parse a log line into its components</span>
+<span class="n">LOG_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;\[(?P&lt;time&gt;\d</span><span class="si">{2}</span><span class="s2">:\d</span><span class="si">{2}</span><span class="s2">:\d</span><span class="si">{2}</span><span class="s2">\.\d</span><span class="si">{6}</span><span class="s2">)\]\s+&quot;</span>
+    <span class="sa">r</span><span class="s2">&quot;\[(?P&lt;thread_name&gt;.*?)\s*\]\s+&quot;</span>
+    <span class="sa">r</span><span class="s2">&quot;\[(?P&lt;component_id&gt;.*?)\s*\]\s+&quot;</span>
+    <span class="sa">r</span><span class="s2">&quot;\[(?P&lt;action&gt;\w+)\s*\]\s*(?P&lt;details&gt;.*)&quot;</span>
+<span class="p">)</span>
+
+<div class="viewcode-block" id="TimedEvent">
+<a class="viewcode-back" href="../../tracer_api.html#ml.tracer.TimedEvent">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimedEvent</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a timed event with a start, end, and children.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">component_id</span><span class="p">,</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">thread_name</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">tick</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">timestamp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">component_id</span> <span class="o">=</span> <span class="n">component_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">event_type</span> <span class="o">=</span> <span class="n">event_type</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_START&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thread_name</span> <span class="o">=</span> <span class="n">thread_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">details</span> <span class="o">=</span> <span class="n">details</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_tick</span> <span class="o">=</span> <span class="n">tick</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_tick</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">duration_ms</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+<div class="viewcode-block" id="TimedEvent.complete">
+<a class="viewcode-back" href="../../tracer_api.html#ml.tracer.TimedEvent.complete">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">end_tick</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Marks the event as complete and calculates its duration.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="n">end_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_tick</span> <span class="o">=</span> <span class="n">end_tick</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">duration_ms</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">event_type</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">component_id</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">duration_ms</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> ms)&quot;</span><span class="p">)</span></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_details</span><span class="p">(</span><span class="n">details_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses the details string, which contains key=value pairs</span>
+<span class="sd">    separated by &#39;|&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">details</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">details_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;=&#39;</span> <span class="ow">in</span> <span class="n">part</span><span class="p">:</span>
+            <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+            <span class="n">details</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+    <span class="k">return</span> <span class="n">details</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_log</span><span class="p">(</span><span class="n">log_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses the trace log file and reconstructs the hierarchy of timed events.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">event_stacks</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">root_events</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_events_by_id</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">unlinked_children</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">LOG_PATTERN</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+            <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">],</span> <span class="n">conf</span><span class="o">.</span><span class="n">TRACER_TIMESTAMP_FORMAT</span><span class="p">)</span>
+            <span class="n">thread_name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;thread_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">component_id</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;component_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">details</span> <span class="o">=</span> <span class="n">_parse_details</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;details&#39;</span><span class="p">])</span>
+            <span class="n">tick</span> <span class="o">=</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_TICK</span><span class="p">)</span>
+            <span class="n">start_tick</span> <span class="o">=</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_START_TICK</span><span class="p">,</span> <span class="n">tick</span><span class="p">)</span> <span class="c1"># Use start_tick if present, else fallback to tick</span>
+            <span class="n">end_tick</span> <span class="o">=</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_END_TICK</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">action</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_START&#39;</span><span class="p">):</span>
+                <span class="n">event</span> <span class="o">=</span> <span class="n">TimedEvent</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">component_id</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">thread_name</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">start_tick</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">conf</span><span class="o">.</span><span class="n">TRACER_KEY_EVENT_ID</span> <span class="ow">in</span> <span class="n">details</span><span class="p">:</span>
+                    <span class="n">all_events_by_id</span><span class="p">[</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;event_id&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">event</span>
+ 
+                <span class="n">stack</span> <span class="o">=</span> <span class="n">event_stacks</span><span class="p">[</span><span class="n">thread_name</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">conf</span><span class="o">.</span><span class="n">TRACER_KEY_PARENT_EVENT_ID</span> <span class="ow">in</span> <span class="n">details</span><span class="p">:</span>
+                    <span class="n">unlinked_children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">stack</span><span class="p">:</span>
+                    <span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+                    <span class="n">event</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">action</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_END&#39;</span><span class="p">):</span>
+                <span class="n">stack</span> <span class="o">=</span> <span class="n">event_stacks</span><span class="p">[</span><span class="n">thread_name</span><span class="p">]</span>
+                <span class="n">event_type_to_match</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_END&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="n">found_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">stack</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">event_type</span> <span class="o">==</span> <span class="n">event_type_to_match</span> <span class="ow">and</span> <span class="n">stack</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">component_id</span> <span class="o">==</span> <span class="n">component_id</span><span class="p">:</span>
+                        <span class="n">found_idx</span> <span class="o">=</span> <span class="n">i</span>
+                        <span class="k">break</span>
+                
+                <span class="k">if</span> <span class="n">found_idx</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">found_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                        <span class="n">event</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                        <span class="n">event</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">end_tick</span> <span class="k">if</span> <span class="n">end_tick</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">tick</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">unlinked_children</span><span class="p">:</span>
+        <span class="n">parent_id</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="n">conf</span><span class="o">.</span><span class="n">TRACER_KEY_PARENT_EVENT_ID</span><span class="p">]</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">all_events_by_id</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">parent_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parent</span><span class="p">:</span>
+            <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">all_events_by_id</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">root_events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">root_events</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">start_time</span><span class="p">),</span> <span class="n">event_stacks</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_print_event_hierarchy</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Recursively prints the event hierarchy with indentation.&quot;&quot;&quot;</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;  &quot;</span> <span class="o">*</span> <span class="n">indent</span>
+    <span class="n">strategy_info</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">event_type</span> <span class="o">==</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_EVENT_EXECUTION_STRATEGY</span> <span class="ow">and</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_STRATEGY</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">details</span><span class="p">:</span>
+        <span class="n">strategy_info</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; (strategy: </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_STRATEGY</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="n">details_parts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">details_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Duration: </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">duration_ms</span><span class="si">:</span><span class="s2">8.3f</span><span class="si">}</span><span class="s2"> ms&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">start_time</span><span class="p">:</span>
+        <span class="n">details_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Start Time: </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">TRACER_TIMESTAMP_FORMAT</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">end_time</span><span class="p">:</span>
+        <span class="n">details_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;End Time: </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">end_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">TRACER_TIMESTAMP_FORMAT</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">start_tick</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">details_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Start Tick: </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">start_tick</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">end_tick</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">details_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;End Tick: </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">end_tick</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">details_line</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">details_parts</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">- </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">component_id</span><span class="si">:</span><span class="s2">&lt;30</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">event_type</span><span class="si">:</span><span class="s2">&lt;24</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">details_line</span><span class="si">}{</span><span class="n">strategy_info</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+        <span class="n">_print_event_hierarchy</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">indent</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert_event_to_dict</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="n">TimedEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Recursively converts a TimedEvent and its children to a dictionary.&quot;&quot;&quot;</span>
+    <span class="n">event_name_str</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">event_type</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_START&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_END&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Clean up details by removing redundant tick information before serialization.</span>
+    <span class="n">clean_details</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">clean_details</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;tick&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">clean_details</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;start_tick&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">clean_details</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;end_tick&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">event_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;component_id&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">component_id</span><span class="p">,</span>
+        <span class="s2">&quot;event_name&quot;</span><span class="p">:</span> <span class="n">event_name_str</span><span class="p">,</span>
+        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">event_type</span><span class="p">,</span>
+        <span class="s2">&quot;duration_ms&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">duration_ms</span><span class="p">,</span>
+        <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">start_time</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">end_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">end_time</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;start_tick&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">start_tick</span><span class="p">,</span>
+        <span class="s2">&quot;end_tick&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">end_tick</span><span class="p">,</span>
+        <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="n">clean_details</span><span class="p">,</span>
+        <span class="s2">&quot;thread_name&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">thread_name</span><span class="p">,</span>
+        <span class="s2">&quot;children&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">_convert_event_to_dict</span><span class="p">(</span><span class="n">child</span><span class="p">)</span> <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">children</span><span class="p">]</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">event_dict</span>
+
+
+<span class="c1"># --- Perfetto JSON Generation ---</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_find_all_relationships_from_timed_events</span><span class="p">(</span><span class="n">events</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">TimedEvent</span><span class="p">],</span> <span class="n">parent_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">all_threads</span><span class="p">:</span> <span class="nb">set</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Recursively traverses TimedEvents to find every thread and its creator.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">thread_name</span><span class="p">:</span>
+            <span class="n">all_threads</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">thread_name</span><span class="p">)</span>
+
+        <span class="n">details</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">details</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">child_thread</span> <span class="o">=</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;thread_name&#39;</span><span class="p">)</span>
+        <span class="n">parent_thread</span> <span class="o">=</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;creator_thread&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">child_thread</span> <span class="ow">and</span> <span class="n">parent_thread</span> <span class="ow">and</span> <span class="n">child_thread</span> <span class="o">!=</span> <span class="n">parent_thread</span><span class="p">:</span>
+            <span class="n">all_threads</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">child_thread</span><span class="p">)</span>
+            <span class="n">all_threads</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">parent_thread</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">child_thread</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parent_map</span><span class="p">:</span>
+                <span class="n">parent_map</span><span class="p">[</span><span class="n">child_thread</span><span class="p">]</span> <span class="o">=</span> <span class="n">parent_thread</span>
+
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+            <span class="n">_find_all_relationships_from_timed_events</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">children</span><span class="p">,</span> <span class="n">parent_map</span><span class="p">,</span> <span class="n">all_threads</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_thread_order_list</span><span class="p">(</span><span class="n">current_thread</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">children_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">ordered_list</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">visited_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Performs a depth-first traversal of the hierarchy map to build the ordered list.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">current_thread</span> <span class="ow">in</span> <span class="n">visited_set</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">ordered_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_thread</span><span class="p">)</span>
+    <span class="n">visited_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">current_thread</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">children_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">current_thread</span><span class="p">,</span> <span class="p">[])):</span>
+        <span class="n">_build_thread_order_list</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">children_map</span><span class="p">,</span> <span class="n">ordered_list</span><span class="p">,</span> <span class="n">visited_set</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_perfetto_metadata_events</span><span class="p">(</span><span class="n">pid</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">thread_to_tid</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates metadata events to name the process and threads in Perfetto.&quot;&quot;&quot;</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;process_name&quot;</span><span class="p">,</span> <span class="s2">&quot;ph&quot;</span><span class="p">:</span> <span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="s2">&quot;pid&quot;</span><span class="p">:</span> <span class="n">pid</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Multirotor Simulation&quot;</span><span class="p">}}]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">tid</span> <span class="ow">in</span> <span class="n">thread_to_tid</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">metadata</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;thread_name&quot;</span><span class="p">,</span> <span class="s2">&quot;ph&quot;</span><span class="p">:</span> <span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="s2">&quot;pid&quot;</span><span class="p">:</span> <span class="n">pid</span><span class="p">,</span> <span class="s2">&quot;tid&quot;</span><span class="p">:</span> <span class="n">tid</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">}})</span>
+    <span class="k">return</span> <span class="n">metadata</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert_timed_event_to_perfetto</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="n">TimedEvent</span><span class="p">,</span> <span class="n">pid</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">base_timestamp_us</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">thread_to_tid</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts a single TimedEvent to the Perfetto Trace Event Format.&quot;&quot;&quot;</span>
+    <span class="n">start_us</span> <span class="o">=</span> <span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1_000_000</span><span class="p">)</span> <span class="o">-</span> <span class="n">base_timestamp_us</span>
+    <span class="n">duration_us</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">duration_ms</span> <span class="o">*</span> <span class="mi">1000</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">event_type</span><span class="p">,</span>
+        <span class="s2">&quot;cat&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">component_id</span><span class="p">,</span>
+        <span class="s2">&quot;ph&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ts&quot;</span><span class="p">:</span> <span class="n">start_us</span><span class="p">,</span>
+        <span class="s2">&quot;dur&quot;</span><span class="p">:</span> <span class="n">duration_us</span><span class="p">,</span>
+        <span class="s2">&quot;pid&quot;</span><span class="p">:</span> <span class="n">pid</span><span class="p">,</span>
+        <span class="s2">&quot;tid&quot;</span><span class="p">:</span> <span class="n">thread_to_tid</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">thread_name</span><span class="p">),</span>
+        <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">details</span>
+    <span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_flatten_events_for_perfetto</span><span class="p">(</span><span class="n">events</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">TimedEvent</span><span class="p">],</span> <span class="n">pid</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">base_timestamp_us</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">thread_to_tid</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Recursively flattens the TimedEvent hierarchy for Perfetto.&quot;&quot;&quot;</span>
+    <span class="n">perfetto_events</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">start_time</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">end_time</span><span class="p">:</span>
+            <span class="n">perfetto_events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_convert_timed_event_to_perfetto</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">base_timestamp_us</span><span class="p">,</span> <span class="n">thread_to_tid</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+            <span class="n">perfetto_events</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_flatten_events_for_perfetto</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">children</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">base_timestamp_us</span><span class="p">,</span> <span class="n">thread_to_tid</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">perfetto_events</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_perfetto_json</span><span class="p">(</span><span class="n">root_events</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">TimedEvent</span><span class="p">],</span> <span class="n">out_stream</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates and writes the Perfetto JSON to the given stream.&quot;&quot;&quot;</span>
+    <span class="c1"># 1. Build hierarchy from creator_thread attributes</span>
+    <span class="n">parent_map</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">all_threads_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">_find_all_relationships_from_timed_events</span><span class="p">(</span><span class="n">root_events</span><span class="p">,</span> <span class="n">parent_map</span><span class="p">,</span> <span class="n">all_threads_set</span><span class="p">)</span>
+
+    <span class="n">children_map</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">child</span><span class="p">,</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">parent_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">children_map</span><span class="p">[</span><span class="n">parent</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+
+    <span class="c1"># 2. Create the final ordered list of threads</span>
+    <span class="n">main_thread_name</span> <span class="o">=</span> <span class="s1">&#39;MainThread&#39;</span>
+    <span class="n">sim_hierarchy_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">visited_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s1">&#39;top_thread&#39;</span> <span class="ow">in</span> <span class="n">all_threads_set</span><span class="p">:</span>
+        <span class="n">_build_thread_order_list</span><span class="p">(</span><span class="s1">&#39;top_thread&#39;</span><span class="p">,</span> <span class="n">children_map</span><span class="p">,</span> <span class="n">sim_hierarchy_list</span><span class="p">,</span> <span class="n">visited_set</span><span class="p">)</span>
+    
+    <span class="n">other_root_threads</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">all_threads_set</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">visited_set</span> <span class="ow">and</span> <span class="n">t</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parent_map</span><span class="p">])</span>
+
+    <span class="n">final_ordered_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">main_thread_name</span><span class="p">]</span>
+    <span class="n">final_ordered_list</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">sim_hierarchy_list</span> <span class="k">if</span> <span class="n">t</span> <span class="o">!=</span> <span class="n">main_thread_name</span><span class="p">])</span>
+    <span class="n">final_ordered_list</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">other_root_threads</span> <span class="k">if</span> <span class="n">t</span> <span class="o">!=</span> <span class="n">main_thread_name</span><span class="p">])</span>
+    <span class="n">all_threads</span> <span class="o">=</span> <span class="n">final_ordered_list</span>
+
+    <span class="c1"># 3. Create thread ID mapping (starting from 1)</span>
+    <span class="n">thread_to_tid</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_threads</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span><span class="p">}</span>
+
+    <span class="c1"># 4. Generate Perfetto events</span>
+    <span class="n">base_timestamp_us</span> <span class="o">=</span> <span class="n">root_events</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1_000_000</span>
+    <span class="n">pid</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">metadata_events</span> <span class="o">=</span> <span class="n">_create_perfetto_metadata_events</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">thread_to_tid</span><span class="p">)</span>
+    <span class="n">perfetto_events</span> <span class="o">=</span> <span class="n">_flatten_events_for_perfetto</span><span class="p">(</span><span class="n">root_events</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">base_timestamp_us</span><span class="p">,</span> <span class="n">thread_to_tid</span><span class="p">)</span>
+
+    <span class="c1"># 5. Write to stream</span>
+    <span class="n">output_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;traceEvents&#39;</span><span class="p">:</span> <span class="n">metadata_events</span> <span class="o">+</span> <span class="n">perfetto_events</span><span class="p">}</span>
+    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">output_data</span><span class="p">,</span> <span class="n">out_stream</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="analyze_trace_log">
+<a class="viewcode-back" href="../../tracer_api.html#ml.tracer.analyze_trace_log">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">analyze_trace_log</span><span class="p">(</span><span class="n">log_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="n">output_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main analysis function. Parses the log and prints a performance report.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        log_path: Path to the simulation trace log file.</span>
+<span class="sd">        output_format: The desired output format. Can be &#39;text&#39;, &#39;json&#39;, or &#39;json:perfetto&#39;.</span>
+<span class="sd">        output_file: Optional path to write the output to. If None, prints to stdout.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">all_steps</span><span class="p">,</span> <span class="n">open_stacks</span> <span class="o">=</span> <span class="n">_parse_log</span><span class="p">(</span><span class="n">log_path</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: Log file not found at &#39;</span><span class="si">{</span><span class="n">log_path</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">complete_root_events</span> <span class="o">=</span> <span class="p">[</span><span class="n">event</span> <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">all_steps</span> <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">end_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="c1"># Determine the output stream</span>
+    <span class="n">out_stream</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">output_file</span> <span class="k">else</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">complete_root_events</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">output_format</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">):</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">([],</span> <span class="n">out_stream</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c1"># text</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Could not find any fully completed simulation steps in the log.&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">out_stream</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">output_format</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">:</span>
+            <span class="n">json_output</span> <span class="o">=</span> <span class="p">[</span><span class="n">_convert_event_to_dict</span><span class="p">(</span><span class="n">event</span><span class="p">)</span> <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">complete_root_events</span><span class="p">]</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">json_output</span><span class="p">,</span> <span class="n">out_stream</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">output_format</span> <span class="o">==</span> <span class="s1">&#39;json:perfetto&#39;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating Perfetto-compatible JSON trace...&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="n">_generate_perfetto_json</span><span class="p">(</span><span class="n">complete_root_events</span><span class="p">,</span> <span class="n">out_stream</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># text format</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">out_stream</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Performance Analysis of Simulation Step(s)&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">out_stream</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">out_stream</span><span class="p">)</span>
+            <span class="c1"># Redirect print to the specified stream for the hierarchy</span>
+            <span class="n">original_print</span> <span class="o">=</span> <span class="n">builtins</span><span class="o">.</span><span class="n">print</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">redirected_print</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="s1">&#39;file&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                    <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_stream</span>
+                <span class="n">original_print</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">builtins</span><span class="o">.</span><span class="n">print</span> <span class="o">=</span> <span class="n">redirected_print</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">complete_root_events</span><span class="p">:</span>
+                    <span class="n">_print_event_hierarchy</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">out_stream</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">builtins</span><span class="o">.</span><span class="n">print</span> <span class="o">=</span> <span class="n">original_print</span> <span class="c1"># Restore original print function</span>
+
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">output_file</span><span class="p">:</span>
+            <span class="n">out_stream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
 </pre></div>
 
            </div>
@@ -268,7 +646,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, openformatproj.</p>
+    <p>&#169; Copyright .</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
