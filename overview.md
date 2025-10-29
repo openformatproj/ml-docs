@@ -14,10 +14,12 @@
     - [Example](#example)
   - [Execution Hierarchy and Threading Model](#execution-hierarchy-and-threading-model)
   - [Trace Analysis](#trace-analysis)
-    - [Perfetto UI Navigation Cheatsheet](#perfetto-ui-navigation-cheatsheet)
-      - [Always Active](#always-active)
-      - [On the Main Timeline Area](#on-the-main-timeline-area)
-      - [On the Top Time-Scrubber Bar](#on-the-top-time-scrubber-bar)
+    - [Text Report](#text-report)
+    - [JSON Report](#json-report)
+      - [Perfetto UI Navigation Cheatsheet](#perfetto-ui-navigation-cheatsheet)
+        - [Always Active](#always-active)
+        - [On the Main Timeline Area](#on-the-main-timeline-area)
+        - [On the Top Time-Scrubber Bar](#on-the-top-time-scrubber-bar)
   - [Execution Strategies \& Parallelism](#execution-strategies--parallelism)
   - [Scheduling Conditions](#scheduling-conditions)
   - [Standard Library Parts](#standard-library-parts)
@@ -28,6 +30,7 @@
   - [Key Features](#key-features)
   - [Example: A Simple Simulation](#example-a-simple-simulation)
   - [Generating API Documentation](#generating-api-documentation)
+  - [References](#references)
 
 # openformatproj/ml Simulation Framework
 
@@ -173,11 +176,9 @@ By comparing the durations of `EXECUTION_THREAD` and the inner `EXECUTION` logs,
 
 ## Trace Analysis
 
-The structured logs produced by the `Tracer` can be parsed to generate a detailed performance report, visualizing the execution hierarchy described above. This is invaluable for understanding performance bottlenecks, thread management time, and verifying the real-time behavior of the simulation.
+The structured logs produced by the `Tracer` can be parsed to generate detailed performance reports. This is invaluable for understanding performance bottlenecks, thread management time, and verifying the real-time behavior of the simulation.
 
-The analysis script can be run directly on a log file from your project's root directory:
-
-The `analyze_trace_log` function in `ml.tracer` can be called from a script to generate the report. For example, you could create a `create_report.py` script like this:
+The `analyze_trace_log` function in `ml.tracer` can be called from a script to generate a report. For example, you could create a `create_report.py` script in your project's root:
 
 ```python
 # create_report.py
@@ -187,19 +188,21 @@ from ml.tracer import analyze_trace_log
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Analyze trace logs.")
     parser.add_argument("log_file", help="Path to the trace log file.")
-    parser.add_argument("--format", choices=['text', 'json'], default='text', help="Output format.")
-    parser.add_-argument("-o", "--output", help="Path to the output file.")
+    parser.add_argument("--format", choices=['text', 'json', 'json:perfetto'], default='text', help="Output format.")
+    parser.add_argument("-o", "--output", help="Path to the output file.")
     args = parser.parse_args()
     
-    analyze_trace_log(args.log_file, output_format=args.format, output_file=args.output)
+    analyze_trace_log(log_path=args.log_file, output_format=args.format, output_file=args.output)
 ```
 
-For example, to generate a textual report and save it to a file:
+### Text Report
+
+To generate a human-readable, hierarchical text report and save it to a file:
 ```sh
-python create_report.py logs/simulation_trace.log --format text -o analysis.log
+python create_report.py logs/trace.log --format text -o trace_analysis.log
 ```
 
-This produces a hierarchical view of one or more complete simulation steps, like this:
+This produces a hierarchical view of one or more complete simulation steps:
 
 ```
 ================================================================================
@@ -227,113 +230,41 @@ In this report:
 -   **`INIT`**: The one-time setup phase for a `Part`, triggered by calling its `init()` method. This is where initialization logic, such as setting up connections to external resources like a physics engine, is executed.
 -   **`LIFECYCLE_THREAD`**: The total time the main thread of a `Part` (like `top`) was active for one full cycle.
 -   **`WAIT`**: The idle time within that cycle, where the part's thread was sleeping, waiting for the next event. A healthy `WAIT` duration indicates the simulation is keeping up with its real-time schedule.
--   **`STEP`**: The "work" phase of the cycle. Its children show what was executed during that step.
+-   **`STEP`**: The "work" phase of a structural part's cycle. This is a loop that includes scheduling inner parts, calling the execution strategy, and propagating data between them. It continues as long as there is data flowing within the subsystem.
 -   **`EXECUTION_STRATEGY`**: The time taken by the scheduler to orchestrate its children. The name of the strategy function (e.g., `sequential_execution`) is also shown.
 -   **`EXECUTION_THREAD`**: The total lifetime of a temporary thread spawned by a parallel strategy.
--   **`EXECUTION`**: The pure computation time of a `behavior()` or `__step()` method.
+-   **`EXECUTION`**: The pure computation time spent inside a single part's `execute()` method. For a behavioral part, this primarily measures its `behavior()` method. For a structural part, it measures the time to propagate its inputs and run its own internal `__step()` loop.
 
-To generate a machine-readable JSON report:
+### JSON Report
+
+To generate a machine-readable JSON report and save it to a file:
 ```sh
-python create_report.py logs/simulation_trace.log --format json -o analysis.json
+python create_report.py logs/trace.log --format json -o trace_analysis.json
 ```
 
-This produces a structured JSON file, which is ideal for automated analysis or visualization:
+This produces a structured JSON file, which is ideal for automated analysis or visualization.
 
-```json
-[
-  {
-    "component_id": "top",
-    "event_name": "LIFECYCLE_THREAD",
-    "action": "LIFECYCLE_THREAD",
-    "duration_ms": 10.005,
-    "start_time": "1900-01-01T10:00:00.150125",
-    "end_time": "1900-01-01T10:00:00.160130",
-    "start_tick": null,
-    "end_tick": null,
-    "details": {},
-    "thread_name": "top_thread",
-    "children": [
-      {
-        "component_id": "top",
-        "event_name": "WAIT",
-        "action": "WAIT",
-        "duration_ms": 3.001,
-        "start_time": "1900-01-01T10:00:00.150126",
-        "end_time": "1900-01-01T10:00:00.153127",
-        "start_tick": null,
-        "end_tick": null,
-        "details": {},
-        "thread_name": "top_thread",
-        "children": []
-      },
-      {
-        "component_id": "top",
-        "event_name": "STEP",
-        "action": "STEP",
-        "duration_ms": 7.002,
-        "start_time": "1900-01-01T10:00:00.153127",
-        "end_time": "1900-01-01T10:00:00.160129",
-        "start_tick": null,
-        "end_tick": null,
-        "details": {
-          "idle": false
-        },
-        "thread_name": "top_thread",
-        "children": [
-          {
-            "component_id": "top",
-            "event_name": "EXECUTION_STRATEGY",
-            "action": "EXECUTION_STRATEGY",
-            "duration_ms": 1.001,
-            "start_time": "1900-01-01T10:00:00.153127",
-            "end_time": "1900-01-01T10:00:00.154128",
-            "start_tick": null,
-            "end_tick": null,
-            "details": {
-              "strategy": "sequential_execution"
-            },
-            "thread_name": "top_thread",
-            "children": [
-              {
-                "component_id": "top.time_dist",
-                "event_name": "EXECUTION",
-                "action": "EXECUTION",
-                "duration_ms": 1.000,
-                "start_time": "1900-01-01T10:00:00.153127",
-                "end_time": "1900-01-01T10:00:00.154127",
-                "start_tick": 101,
-                "end_tick": 101,
-                "details": {},
-                "thread_name": "top_thread",
-                "children": []
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
-]
-```
-
-There's also the possibility to use specific schemas. For instance:
+It is also possible to generate reports for specific schemas, such as `json:perfetto`:
 ```sh
-python create_report.py logs/simulation_trace.log --format json:perfetto -o analysis_perfetto.json
+python create_report.py logs/trace.log --format json:perfetto -o trace_analysis:perfetto.json
 ```
 
-Produces a structured JSON file that can be viewed by using the [Perfetto UI](https://ui.perfetto.dev). The only schema currently supported is `json:perfetto`.
+This produces a structured JSON file that can be viewed by using the [Perfetto UI](https://ui.perfetto.dev). The only schema currently supported is `json:perfetto`.
 
-### Perfetto UI Navigation Cheatsheet
+![Figure 1: Perfetto UI example - deadline miss](img/1.png)
+<p align="center">Figure 1: An example of a simulation trace in the Perfetto UI. A jittery cycle (often caused by OS noise) results in a cascade of deadline misses.</p>
 
-#### Always Active
+#### Perfetto UI Navigation Cheatsheet
+
+##### Always Active
 - **Pan Left/Right**: `A` / `D` keys
 - **Zoom In/Out**: `W` / `S` keys
 
-#### On the Main Timeline Area
+##### On the Main Timeline Area
 - **Pan**: `Shift` + `Mouse Drag`
 - **Zoom**: `Ctrl` + `Mouse Wheel`
 
-#### On the Top Time-Scrubber Bar
+##### On the Top Time-Scrubber Bar
 - **Pan**: Click and drag the highlighted window.
 - **Zoom**: Click and drag the left or right boundary of the highlighted window.
 
@@ -509,3 +440,7 @@ The project is set up with Sphinx to generate professional API documentation fro
 2.  Navigate to the `docs/` directory.
 3.  Run `make html`.
 4.  Open `docs/build/html/index.html` in your browser.
+
+## References
+
+1.  [Perfetto UI official repository](https://github.com/google/perfetto)

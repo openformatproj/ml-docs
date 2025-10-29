@@ -44,6 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../engine_api.html">Engine API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../parts_api.html">Parts API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../event_sources_api.html">Event Sources API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../strategies_api.html">Strategies API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tracer_api.html">Tracer API</a></li>
 </ul>
 
@@ -78,7 +79,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">OnFullBehavior</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.tracer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tracer</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">conf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">conf</span> <span class="k">as</span> <span class="n">ml_conf</span>
 
 <div class="viewcode-block" id="Timer">
 <a class="viewcode-back" href="../../event_sources_api.html#ml.event_sources.Timer">[docs]</a>
@@ -103,7 +104,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">interval_seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">duration_seconds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_full</span><span class="p">:</span> <span class="n">OnFullBehavior</span> <span class="o">=</span> <span class="n">OnFullBehavior</span><span class="o">.</span><span class="n">FAIL</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span> <span class="n">on_full</span><span class="o">=</span><span class="n">on_full</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">interval_seconds</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">ERROR_TIMER_INVALID_INTERVAL</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">ml_conf</span><span class="o">.</span><span class="n">ERROR_TIMER_INVALID_INTERVAL</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__interval</span> <span class="o">=</span> <span class="n">interval_seconds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__duration_seconds</span> <span class="o">=</span> <span class="n">duration_seconds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__current_time</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -111,14 +112,14 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A high-precision, drift-free timer loop.&quot;&quot;&quot;</span>
-        <span class="n">Tracer</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_LEVEL_TIMER_LIFECYCLE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_identifier</span><span class="p">(),</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_EVENT_LIFECYCLE_THREAD_START</span><span class="p">,</span> <span class="p">{</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_INTERVAL</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__interval</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_DURATION</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__duration_seconds</span><span class="p">})</span>
+        <span class="n">Tracer</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ml_conf</span><span class="o">.</span><span class="n">LOG_LEVEL_TIMER_LIFECYCLE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_identifier</span><span class="p">(),</span> <span class="n">ml_conf</span><span class="o">.</span><span class="n">LOG_EVENT_LIFECYCLE_THREAD_START</span><span class="p">,</span> <span class="p">{</span><span class="n">ml_conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_INTERVAL</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__interval</span><span class="p">,</span> <span class="n">ml_conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_DURATION</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__duration_seconds</span><span class="p">})</span>
         <span class="n">start_wall_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">sim_time</span> <span class="o">=</span> <span class="mf">0.0</span>
 
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span><span class="p">():</span>
             <span class="c1"># Check for auto-stop condition before sleeping.</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__duration_seconds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">sim_time</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__duration_seconds</span><span class="p">:</span>
-                <span class="n">Tracer</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_LEVEL_TIMER_DURATION_REACHED</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_identifier</span><span class="p">(),</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_EVENT_TIMER_DURATION_REACHED</span><span class="p">,</span> <span class="p">{</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_SIM_TIME</span><span class="p">:</span> <span class="n">sim_time</span><span class="p">})</span>
+                <span class="n">Tracer</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ml_conf</span><span class="o">.</span><span class="n">LOG_LEVEL_TIMER_DURATION_REACHED</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_identifier</span><span class="p">(),</span> <span class="n">ml_conf</span><span class="o">.</span><span class="n">LOG_EVENT_TIMER_DURATION_REACHED</span><span class="p">,</span> <span class="p">{</span><span class="n">ml_conf</span><span class="o">.</span><span class="n">LOG_DETAIL_KEY_SIM_TIME</span><span class="p">:</span> <span class="n">sim_time</span><span class="p">})</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
                 <span class="k">break</span>
 
@@ -137,7 +138,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">sim_time</span><span class="p">)</span>
             <span class="n">sim_time</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__interval</span>
 
-        <span class="n">Tracer</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">LOG_LEVEL_TIMER_LIFECYCLE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_identifier</span><span class="p">(),</span> <span class="n">conf</span><span class="o">.</span><span class="n">LOG_EVENT_LIFECYCLE_THREAD_END</span><span class="p">)</span>
+        <span class="n">Tracer</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ml_conf</span><span class="o">.</span><span class="n">LOG_LEVEL_TIMER_LIFECYCLE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_identifier</span><span class="p">(),</span> <span class="n">ml_conf</span><span class="o">.</span><span class="n">LOG_EVENT_LIFECYCLE_THREAD_END</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Timer.get_current_time">
 <a class="viewcode-back" href="../../event_sources_api.html#ml.event_sources.Timer.get_current_time">[docs]</a>
