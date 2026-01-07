@@ -1,0 +1,39 @@
+.. openformatproj/ml documentation master file, created by
+   sphinx-quickstart on ...
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+openformatproj/ml documentation
+===============================
+
+A Component-Based Modeling Language for designing systems and simulate them. All made easy! See the `multirotor project <https://github.com/openformatproj/multirotor>`_ for an example of how to use it.
+
+Version: |release|
+
+Overview
+--------
+
+`Engine overview <https://github.com/openformatproj/ml-docs/blob/master/overview.md>`_
+
+API
+---
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   data_api
+   engine_api
+   enums_api
+   event_sources_api
+   parts_api
+   strategies_api
+   tracer_api
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

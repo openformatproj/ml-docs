@@ -1,0 +1,1610 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Engine API &mdash; ml 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Enums API" href="enums_api.html" />
+    <link rel="prev" title="Data API" href="data_api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ml
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="data_api.html">Data API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Engine API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#ml.engine.Blueprint"><code class="docutils literal notranslate"><span class="pre">Blueprint</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Blueprint.execute"><code class="docutils literal notranslate"><span class="pre">Blueprint.execute()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Blueprint.get_command_queue"><code class="docutils literal notranslate"><span class="pre">Blueprint.get_command_queue()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Blueprint.get_result_queue"><code class="docutils literal notranslate"><span class="pre">Blueprint.get_result_queue()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Blueprint.init"><code class="docutils literal notranslate"><span class="pre">Blueprint.init()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Blueprint.start"><code class="docutils literal notranslate"><span class="pre">Blueprint.start()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Blueprint.stop"><code class="docutils literal notranslate"><span class="pre">Blueprint.stop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Blueprint.term"><code class="docutils literal notranslate"><span class="pre">Blueprint.term()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Blueprint.wait_for_ready"><code class="docutils literal notranslate"><span class="pre">Blueprint.wait_for_ready()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Blueprint.worker_process_loop"><code class="docutils literal notranslate"><span class="pre">Blueprint.worker_process_loop()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.engine.EventInterface"><code class="docutils literal notranslate"><span class="pre">EventInterface</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventInterface.ValidationError"><code class="docutils literal notranslate"><span class="pre">EventInterface.ValidationError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventInterface.get_full_identifier"><code class="docutils literal notranslate"><span class="pre">EventInterface.get_full_identifier()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventInterface.get_identifier"><code class="docutils literal notranslate"><span class="pre">EventInterface.get_identifier()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.engine.EventQueue"><code class="docutils literal notranslate"><span class="pre">EventQueue</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.EmptyError"><code class="docutils literal notranslate"><span class="pre">EventQueue.EmptyError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.FullError"><code class="docutils literal notranslate"><span class="pre">EventQueue.FullError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.IN"><code class="docutils literal notranslate"><span class="pre">EventQueue.IN</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.OUT"><code class="docutils literal notranslate"><span class="pre">EventQueue.OUT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.Parent"><code class="docutils literal notranslate"><span class="pre">EventQueue.Parent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.PayloadError"><code class="docutils literal notranslate"><span class="pre">EventQueue.PayloadError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.clear"><code class="docutils literal notranslate"><span class="pre">EventQueue.clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.get_direction"><code class="docutils literal notranslate"><span class="pre">EventQueue.get_direction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.get_full_identifier"><code class="docutils literal notranslate"><span class="pre">EventQueue.get_full_identifier()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.get_identifier"><code class="docutils literal notranslate"><span class="pre">EventQueue.get_identifier()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.get_type"><code class="docutils literal notranslate"><span class="pre">EventQueue.get_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.is_empty"><code class="docutils literal notranslate"><span class="pre">EventQueue.is_empty()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.is_full"><code class="docutils literal notranslate"><span class="pre">EventQueue.is_full()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.peek"><code class="docutils literal notranslate"><span class="pre">EventQueue.peek()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.pop"><code class="docutils literal notranslate"><span class="pre">EventQueue.pop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.push"><code class="docutils literal notranslate"><span class="pre">EventQueue.push()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventQueue.validate_connection"><code class="docutils literal notranslate"><span class="pre">EventQueue.validate_connection()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.engine.EventSource"><code class="docutils literal notranslate"><span class="pre">EventSource</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventSource.emit"><code class="docutils literal notranslate"><span class="pre">EventSource.emit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventSource.get_exception"><code class="docutils literal notranslate"><span class="pre">EventSource.get_exception()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventSource.get_full_identifier"><code class="docutils literal notranslate"><span class="pre">EventSource.get_full_identifier()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventSource.get_identifier"><code class="docutils literal notranslate"><span class="pre">EventSource.get_identifier()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventSource.is_running"><code class="docutils literal notranslate"><span class="pre">EventSource.is_running()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventSource.run_loop"><code class="docutils literal notranslate"><span class="pre">EventSource.run_loop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventSource.start"><code class="docutils literal notranslate"><span class="pre">EventSource.start()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventSource.stop"><code class="docutils literal notranslate"><span class="pre">EventSource.stop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventSource.stop_event_is_set"><code class="docutils literal notranslate"><span class="pre">EventSource.stop_event_is_set()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.EventSource.wait"><code class="docutils literal notranslate"><span class="pre">EventSource.wait()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.engine.Interface"><code class="docutils literal notranslate"><span class="pre">Interface</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Interface.ValidationError"><code class="docutils literal notranslate"><span class="pre">Interface.ValidationError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Interface.get_full_identifier"><code class="docutils literal notranslate"><span class="pre">Interface.get_full_identifier()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Interface.get_identifier"><code class="docutils literal notranslate"><span class="pre">Interface.get_identifier()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Interface.get_master_port"><code class="docutils literal notranslate"><span class="pre">Interface.get_master_port()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Interface.get_slave_port"><code class="docutils literal notranslate"><span class="pre">Interface.get_slave_port()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.engine.Part"><code class="docutils literal notranslate"><span class="pre">Part</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.BEHAVIORAL"><code class="docutils literal notranslate"><span class="pre">Part.BEHAVIORAL</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.BLUEPRINT"><code class="docutils literal notranslate"><span class="pre">Part.BLUEPRINT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.BehaviorNotAllowedError"><code class="docutils literal notranslate"><span class="pre">Part.BehaviorNotAllowedError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.NotExecutableError"><code class="docutils literal notranslate"><span class="pre">Part.NotExecutableError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.STRUCTURAL"><code class="docutils literal notranslate"><span class="pre">Part.STRUCTURAL</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.ValidationError"><code class="docutils literal notranslate"><span class="pre">Part.ValidationError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.add_hook"><code class="docutils literal notranslate"><span class="pre">Part.add_hook()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.add_part"><code class="docutils literal notranslate"><span class="pre">Part.add_part()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.behavior"><code class="docutils literal notranslate"><span class="pre">Part.behavior()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.configure"><code class="docutils literal notranslate"><span class="pre">Part.configure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.configure_item"><code class="docutils literal notranslate"><span class="pre">Part.configure_item()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.connect"><code class="docutils literal notranslate"><span class="pre">Part.connect()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.connect_event_queue"><code class="docutils literal notranslate"><span class="pre">Part.connect_event_queue()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.connect_event_source"><code class="docutils literal notranslate"><span class="pre">Part.connect_event_source()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.execute"><code class="docutils literal notranslate"><span class="pre">Part.execute()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.get_event_queue"><code class="docutils literal notranslate"><span class="pre">Part.get_event_queue()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.get_event_queues"><code class="docutils literal notranslate"><span class="pre">Part.get_event_queues()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.get_exception"><code class="docutils literal notranslate"><span class="pre">Part.get_exception()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.get_full_identifier"><code class="docutils literal notranslate"><span class="pre">Part.get_full_identifier()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.get_identifier"><code class="docutils literal notranslate"><span class="pre">Part.get_identifier()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.get_interfaces"><code class="docutils literal notranslate"><span class="pre">Part.get_interfaces()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.get_part"><code class="docutils literal notranslate"><span class="pre">Part.get_part()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.get_parts"><code class="docutils literal notranslate"><span class="pre">Part.get_parts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.get_port"><code class="docutils literal notranslate"><span class="pre">Part.get_port()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.get_ports"><code class="docutils literal notranslate"><span class="pre">Part.get_ports()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.init"><code class="docutils literal notranslate"><span class="pre">Part.init()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.is_running"><code class="docutils literal notranslate"><span class="pre">Part.is_running()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.read"><code class="docutils literal notranslate"><span class="pre">Part.read()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.start"><code class="docutils literal notranslate"><span class="pre">Part.start()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.stop"><code class="docutils literal notranslate"><span class="pre">Part.stop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.term"><code class="docutils literal notranslate"><span class="pre">Part.term()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.trace_log"><code class="docutils literal notranslate"><span class="pre">Part.trace_log()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.validate_insertion"><code class="docutils literal notranslate"><span class="pre">Part.validate_insertion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.wait"><code class="docutils literal notranslate"><span class="pre">Part.wait()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.wait_for_ready"><code class="docutils literal notranslate"><span class="pre">Part.wait_for_ready()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.wire"><code class="docutils literal notranslate"><span class="pre">Part.wire()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.wire_event"><code class="docutils literal notranslate"><span class="pre">Part.wire_event()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Part.write"><code class="docutils literal notranslate"><span class="pre">Part.write()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.engine.Port"><code class="docutils literal notranslate"><span class="pre">Port</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.IN"><code class="docutils literal notranslate"><span class="pre">Port.IN</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.NOT_PERSISTENT"><code class="docutils literal notranslate"><span class="pre">Port.NOT_PERSISTENT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.OUT"><code class="docutils literal notranslate"><span class="pre">Port.OUT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.OverwriteError"><code class="docutils literal notranslate"><span class="pre">Port.OverwriteError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.PERSISTENT"><code class="docutils literal notranslate"><span class="pre">Port.PERSISTENT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.Parent"><code class="docutils literal notranslate"><span class="pre">Port.Parent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.PayloadError"><code class="docutils literal notranslate"><span class="pre">Port.PayloadError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.StaleReadError"><code class="docutils literal notranslate"><span class="pre">Port.StaleReadError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.get"><code class="docutils literal notranslate"><span class="pre">Port.get()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.get_direction"><code class="docutils literal notranslate"><span class="pre">Port.get_direction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.get_full_identifier"><code class="docutils literal notranslate"><span class="pre">Port.get_full_identifier()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.get_identifier"><code class="docutils literal notranslate"><span class="pre">Port.get_identifier()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.get_parent"><code class="docutils literal notranslate"><span class="pre">Port.get_parent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.get_semantic"><code class="docutils literal notranslate"><span class="pre">Port.get_semantic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.get_type"><code class="docutils literal notranslate"><span class="pre">Port.get_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.is_updated"><code class="docutils literal notranslate"><span class="pre">Port.is_updated()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.peek"><code class="docutils literal notranslate"><span class="pre">Port.peek()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.set"><code class="docutils literal notranslate"><span class="pre">Port.set()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.engine.Port.validate_connection"><code class="docutils literal notranslate"><span class="pre">Port.validate_connection()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="enums_api.html">Enums API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="event_sources_api.html">Event Sources API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts_api.html">Parts API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategies_api.html">Strategies API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tracer_api.html">Tracer API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ml</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Engine API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/engine_api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="engine-api">
+<h1>Engine API<a class="headerlink" href="#engine-api" title="Link to this heading"></a></h1>
+<p>This is the core simulation engine.</p>
+<dl class="py class" id="module-ml.engine">
+<dt class="sig sig-object py" id="ml.engine.Blueprint">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.engine.</span></span><span class="sig-name descname"><span class="pre">Blueprint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">part_to_be_proxied</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ml.engine.Part" title="ml.engine.Part"><span class="pre">Part</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Blueprint" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ml.engine.Part" title="ml.engine.Part"><code class="xref py py-class docutils literal notranslate"><span class="pre">Part</span></code></a></p>
+<p>A smart proxy for a Part that runs in a separate process.</p>
+<p>This class inherits from Part to provide a consistent interface to its parent.
+Internally, it manages the lifecycle and communication (via queues) of a
+worker process that runs the real Part instance.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Blueprint.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Blueprint.execute" title="Link to this definition"></a></dt>
+<dd><p>Handles the full IPC cycle for executing the real part in the worker process.</p>
+<p>This method gathers input data from its own updated ports, sends an
+‘EXECUTE’ command to the worker, blocks until the execution is complete,
+and then applies the returned output data to its own output ports.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Exception</strong> – If the worker process raises an exception during execution.</p></li>
+<li><p><a class="reference internal" href="#ml.engine.Port.PayloadError" title="ml.engine.Port.PayloadError"><strong>Port.PayloadError</strong></a> – If the worker output data type does not match the blueprint port type.</p></li>
+<li><p><a class="reference internal" href="#ml.engine.Port.OverwriteError" title="ml.engine.Port.OverwriteError"><strong>Port.OverwriteError</strong></a> – If a data transfer attempts to overwrite an unconsumed port payload.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Blueprint.get_command_queue">
+<span class="sig-name descname"><span class="pre">get_command_queue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Queue</span></span></span><a class="headerlink" href="#ml.engine.Blueprint.get_command_queue" title="Link to this definition"></a></dt>
+<dd><p>Returns the queue used to send commands to the worker process.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Blueprint.get_result_queue">
+<span class="sig-name descname"><span class="pre">get_result_queue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Queue</span></span></span><a class="headerlink" href="#ml.engine.Blueprint.get_result_queue" title="Link to this definition"></a></dt>
+<dd><p>Returns the queue used to receive results from the worker process.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Blueprint.init">
+<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Blueprint.init" title="Link to this definition"></a></dt>
+<dd><p>No-op init. The real part’s init() is called inside the worker process.
+This is called by the parent’s init() cascade.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Blueprint.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stop_condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ml.engine.Part" title="ml.engine.Part"><span class="pre">Part</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Blueprint.start" title="Link to this definition"></a></dt>
+<dd><p>Creates and starts the worker process for the real Part.</p>
+<p>This method is called by the parent’s start() cascade. It configures and
+launches a new <cite>multiprocessing.Process</cite> with <cite>worker_process_loop</cite> as
+its target.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>stop_condition</strong> – This argument is part of the method signature to
+conform to the parent <cite>Part.start</cite> method but is not
+used by the Blueprint, as the stop condition is
+managed by the parent’s run loop.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Blueprint.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Blueprint.stop" title="Link to this definition"></a></dt>
+<dd><p>Sends the SHUTDOWN command to the worker process.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Blueprint.term">
+<span class="sig-name descname"><span class="pre">term</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Blueprint.term" title="Link to this definition"></a></dt>
+<dd><p>Sends the SHUTDOWN command and joins the worker process.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Blueprint.wait_for_ready">
+<span class="sig-name descname"><span class="pre">wait_for_ready</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Blueprint.wait_for_ready" title="Link to this definition"></a></dt>
+<dd><p>Blocks until the worker process signals it has initialized.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Blueprint.worker_process_loop">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">worker_process_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">part_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">part_full_id_for_logging</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command_queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Queue</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Queue</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Blueprint.worker_process_loop" title="Link to this definition"></a></dt>
+<dd><p>The main, persistent loop for a worker process.</p>
+<p>This static method is the target function for the multiprocessing.Process.
+It handles the entire lifecycle of the real Part within the new process,
+including initialization, command processing, execution, and termination.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>part_info</strong> – A dictionary containing metadata to reconstruct the real Part.</p></li>
+<li><p><strong>part_full_id_for_logging</strong> – The full identifier for logging purposes.</p></li>
+<li><p><strong>command_queue</strong> – The queue for receiving commands (‘EXECUTE’, ‘SHUTDOWN’)
+from the main process.</p></li>
+<li><p><strong>result_queue</strong> – The queue for sending results (‘WORKER_READY’,
+‘EXECUTION_COMPLETE’, exceptions) back to the main process.</p></li>
+<li><p><strong>log_queue</strong> – The queue for sending structured log records to the main
+process’s tracer.</p></li>
+<li><p><strong>error_queue</strong> – The queue for sending formatted error strings to the main
+process’s central error handler.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ml.engine.EventInterface">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.engine.</span></span><span class="sig-name descname"><span class="pre">EventInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ml.engine.EventQueue" title="ml.engine.EventQueue"><span class="pre">EventQueue</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">slave_queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ml.engine.EventQueue" title="ml.engine.EventQueue"><span class="pre">EventQueue</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.EventInterface" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a connection between two event queues.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="ml.engine.EventInterface.ValidationError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ValidationError</span></span><a class="headerlink" href="#ml.engine.EventInterface.ValidationError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when an event queue connection fails validation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventInterface.get_full_identifier">
+<span class="sig-name descname"><span class="pre">get_full_identifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#ml.engine.EventInterface.get_full_identifier" title="Link to this definition"></a></dt>
+<dd><p>Dynamically generates the identifier string for this event interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The fully qualified connection string (e.g., “part.q_out-&gt;part2.q_in”).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventInterface.get_identifier">
+<span class="sig-name descname"><span class="pre">get_identifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#ml.engine.EventInterface.get_identifier" title="Link to this definition"></a></dt>
+<dd><p>Gets the identifier for this event interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The fully qualified connection string.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ml.engine.EventQueue">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.engine.</span></span><span class="sig-name descname"><span class="pre">EventQueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="enums_api.html#ml.enums.QueueMode" title="ml.enums.QueueMode"><span class="pre">QueueMode</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">QueueMode.FIFO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload_check</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.EventQueue" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a queue for storing event payloads, with different behaviors
+for input and output directions.</p>
+<p>Methods meant to be overridden:</p>
+<ul class="simple">
+<li><p>validate_connection: Validates if this queue can be connected to a specific slave queue.</p></li>
+</ul>
+<dl class="py exception">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.EmptyError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EmptyError</span></span><a class="headerlink" href="#ml.engine.EventQueue.EmptyError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when pop() is called on an empty EventQueue.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.FullError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FullError</span></span><a class="headerlink" href="#ml.engine.EventQueue.FullError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when push() is called on a full EventQueue.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.IN">
+<span class="sig-name descname"><span class="pre">IN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'input'</span></em><a class="headerlink" href="#ml.engine.EventQueue.IN" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.OUT">
+<span class="sig-name descname"><span class="pre">OUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'output'</span></em><a class="headerlink" href="#ml.engine.EventQueue.OUT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.Parent">
+<span class="sig-name descname"><span class="pre">Parent</span></span><a class="headerlink" href="#ml.engine.EventQueue.Parent" title="Link to this definition"></a></dt>
+<dd><p>alias of <code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.PayloadError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PayloadError</span></span><a class="headerlink" href="#ml.engine.EventQueue.PayloadError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when push() is called with a payload of incorrect type.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.EventQueue.clear" title="Link to this definition"></a></dt>
+<dd><p>Removes all event payloads from the queue.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.get_direction">
+<span class="sig-name descname"><span class="pre">get_direction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#ml.engine.EventQueue.get_direction" title="Link to this definition"></a></dt>
+<dd><p>Gets the direction of the event queue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The direction of the event queue (e.g., ‘input’ or ‘output’).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.get_full_identifier">
+<span class="sig-name descname"><span class="pre">get_full_identifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#ml.engine.EventQueue.get_full_identifier" title="Link to this definition"></a></dt>
+<dd><p>Gets the fully qualified identifier of the event queue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The fully qualified identifier, including parent hierarchy.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.get_identifier">
+<span class="sig-name descname"><span class="pre">get_identifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#ml.engine.EventQueue.get_identifier" title="Link to this definition"></a></dt>
+<dd><p>Gets the local identifier of the event queue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The local identifier of the event queue.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.get_type">
+<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#ml.engine.EventQueue.get_type" title="Link to this definition"></a></dt>
+<dd><p>Gets the expected type of the payload.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The expected type, or None if no type has been specified.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Optional[Type]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.is_empty">
+<span class="sig-name descname"><span class="pre">is_empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#ml.engine.EventQueue.is_empty" title="Link to this definition"></a></dt>
+<dd><p>Checks if the event queue is empty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the queue has no payloads, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.is_full">
+<span class="sig-name descname"><span class="pre">is_full</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#ml.engine.EventQueue.is_full" title="Link to this definition"></a></dt>
+<dd><p>Checks if the event queue is full.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the queue has reached its capacity, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.peek">
+<span class="sig-name descname"><span class="pre">peek</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#ml.engine.EventQueue.peek" title="Link to this definition"></a></dt>
+<dd><p>Gets the payload from an OUT queue without consuming it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>The payload if the queue is an OUT queue and not empty,</dt><dd><p>otherwise None.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Optional[Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.pop">
+<span class="sig-name descname"><span class="pre">pop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#ml.engine.EventQueue.pop" title="Link to this definition"></a></dt>
+<dd><p>Removes and returns an event payload from an IN queue.</p>
+<p>The payload returned depends on the queue’s mode (FIFO or LIFO).
+For OUT queues, this is a destructive read of the single payload.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The payload removed from the queue.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Optional[Any]</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#ml.engine.EventQueue.EmptyError" title="ml.engine.EventQueue.EmptyError"><strong>EventQueue.EmptyError</strong></a> – If the queue is empty.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.push">
+<span class="sig-name descname"><span class="pre">push</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.EventQueue.push" title="Link to this definition"></a></dt>
+<dd><p>Adds an event payload to the queue based on its direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>payload</strong> – The event payload to add.</p></li>
+<li><p><strong>overwrite</strong> – For IN queues, if True, this will replace an
+existing payload if the queue is full.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="#ml.engine.EventQueue.FullError" title="ml.engine.EventQueue.FullError"><strong>EventQueue.FullError</strong></a> – If the queue is full and overwrite is False (for IN queues, or propagated from slave for OUT queues).</p></li>
+<li><p><a class="reference internal" href="#ml.engine.EventQueue.PayloadError" title="ml.engine.EventQueue.PayloadError"><strong>EventQueue.PayloadError</strong></a> – If the payload type does not match the queue’s declared type.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventQueue.validate_connection">
+<span class="sig-name descname"><span class="pre">validate_connection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slave_queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ml.engine.EventQueue" title="ml.engine.EventQueue"><span class="pre">EventQueue</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#ml.engine.EventQueue.validate_connection" title="Link to this definition"></a></dt>
+<dd><p>Validates if this queue can be connected to the given slave queue.</p>
+<p>This method is meant to be overridden for custom validation logic.
+The default implementation checks if the master queue’s type is a
+subclass of the slave queue’s type, if both are specified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>slave_queue</strong> – The slave queue to connect to.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the connection is valid, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ml.engine.EventSource">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.engine.</span></span><span class="sig-name descname"><span class="pre">EventSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_full</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="enums_api.html#ml.enums.OnFullBehavior" title="ml.enums.OnFullBehavior"><span class="pre">OnFullBehavior</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">OnFullBehavior.FAIL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="enums_api.html#ml.enums.QueueMode" title="ml.enums.QueueMode"><span class="pre">QueueMode</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">QueueMode.FIFO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload_check</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.EventSource" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Abstract base class for components that generate events, typically in a
+separate thread.</p>
+<p>This class provides the core infrastructure for starting, stopping, and
+managing the lifecycle of an event source thread.</p>
+<p>Methods meant to be overridden:</p>
+<ul class="simple">
+<li><p>run_loop: Contains the logic for generating events.</p></li>
+</ul>
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventSource.emit">
+<span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.EventSource.emit" title="Link to this definition"></a></dt>
+<dd><p>Emits an event with a given payload.</p>
+<p>The output queue will handle the immediate transfer, and this
+method will signal any waiting Part. The output queue is cleared
+after the attempt, regardless of success.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>payload</strong> – The payload of the event to emit.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="#ml.engine.EventQueue.FullError" title="ml.engine.EventQueue.FullError"><strong>EventQueue.FullError</strong></a> – If the target queue is full and the policy is FAIL.</p></li>
+<li><p><a class="reference internal" href="#ml.engine.EventQueue.PayloadError" title="ml.engine.EventQueue.PayloadError"><strong>EventQueue.PayloadError</strong></a> – If the payload type does not match the output queue’s declared type.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventSource.get_exception">
+<span class="sig-name descname"><span class="pre">get_exception</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Exception</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#ml.engine.EventSource.get_exception" title="Link to this definition"></a></dt>
+<dd><p>Gets the exception that caused the run loop to terminate, if any.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The exception object if one occurred, otherwise None.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Optional[Exception]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventSource.get_full_identifier">
+<span class="sig-name descname"><span class="pre">get_full_identifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#ml.engine.EventSource.get_full_identifier" title="Link to this definition"></a></dt>
+<dd><p>Gets the fully qualified identifier of the event source.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The fully qualified identifier.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventSource.get_identifier">
+<span class="sig-name descname"><span class="pre">get_identifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#ml.engine.EventSource.get_identifier" title="Link to this definition"></a></dt>
+<dd><p>Gets the local identifier of the event source.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The local identifier of the event source.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventSource.is_running">
+<span class="sig-name descname"><span class="pre">is_running</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#ml.engine.EventSource.is_running" title="Link to this definition"></a></dt>
+<dd><p>Checks if the event source thread is running.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the source is running, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventSource.run_loop">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run_loop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.EventSource.run_loop" title="Link to this definition"></a></dt>
+<dd><p>The main loop for the event source. This method must be implemented by
+subclasses.</p>
+<p>The loop should periodically check <cite>self.is_running()</cite> or
+<cite>self.__stop_event.is_set()</cite> and exit gracefully.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventSource.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.EventSource.start" title="Link to this definition"></a></dt>
+<dd><p>Starts the event source in a new thread.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventSource.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.EventSource.stop" title="Link to this definition"></a></dt>
+<dd><p>Stops the event source thread and signals any listeners.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventSource.stop_event_is_set">
+<span class="sig-name descname"><span class="pre">stop_event_is_set</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#ml.engine.EventSource.stop_event_is_set" title="Link to this definition"></a></dt>
+<dd><p>Checks if the stop event has been set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the stop event is set, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.EventSource.wait">
+<span class="sig-name descname"><span class="pre">wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.EventSource.wait" title="Link to this definition"></a></dt>
+<dd><p>Waits for the event source thread to finish.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeout</strong> – The maximum time in seconds to wait
+for the thread to complete.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ml.engine.Interface">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.engine.</span></span><span class="sig-name descname"><span class="pre">Interface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ml.engine.Port" title="ml.engine.Port"><span class="pre">Port</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">slave_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ml.engine.Port" title="ml.engine.Port"><span class="pre">Port</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Interface" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a connection between two ports, a master and a slave.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="ml.engine.Interface.ValidationError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ValidationError</span></span><a class="headerlink" href="#ml.engine.Interface.ValidationError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when a port connection fails validation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Interface.get_full_identifier">
+<span class="sig-name descname"><span class="pre">get_full_identifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#ml.engine.Interface.get_full_identifier" title="Link to this definition"></a></dt>
+<dd><p>Dynamically generates the identifier string for this interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The fully qualified connection string (e.g., “part.out-&gt;part2.in”).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Interface.get_identifier">
+<span class="sig-name descname"><span class="pre">get_identifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#ml.engine.Interface.get_identifier" title="Link to this definition"></a></dt>
+<dd><p>Gets the identifier for this interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The fully qualified connection string.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Interface.get_master_port">
+<span class="sig-name descname"><span class="pre">get_master_port</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ml.engine.Port" title="ml.engine.Port"><span class="pre">Port</span></a></span></span><a class="headerlink" href="#ml.engine.Interface.get_master_port" title="Link to this definition"></a></dt>
+<dd><p>Gets the master (source) port of the interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The master port instance.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#ml.engine.Port" title="ml.engine.Port">Port</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Interface.get_slave_port">
+<span class="sig-name descname"><span class="pre">get_slave_port</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ml.engine.Port" title="ml.engine.Port"><span class="pre">Port</span></a></span></span><a class="headerlink" href="#ml.engine.Interface.get_slave_port" title="Link to this definition"></a></dt>
+<dd><p>Gets the slave (destination) port of the interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The slave port instance.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#ml.engine.Port" title="ml.engine.Port">Port</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ml.engine.Part">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.engine.</span></span><span class="sig-name descname"><span class="pre">Part</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ml.engine.Port" title="ml.engine.Port"><span class="pre">Port</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#ml.engine.Part" title="ml.engine.Part"><span class="pre">Part</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_queues</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ml.engine.EventQueue" title="ml.engine.EventQueue"><span class="pre">EventQueue</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Represents a component in the system.</p>
+<p>A Part can be structural (composed of other parts) or behavioral
+(defined by a Python method).</p>
+<p>Methods meant to be overridden:</p>
+<ul class="simple">
+<li><p>behavior: Defines the logic for behavioral parts.</p></li>
+<li><p>configure: Configures the part and its children.</p></li>
+<li><p>configure_item: Configures a Port or EventQueue before insertion.</p></li>
+<li><p>validate_insertion: Validates if a Port or EventQueue can be added.</p></li>
+</ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.engine.Part.BEHAVIORAL">
+<span class="sig-name descname"><span class="pre">BEHAVIORAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'behavioral'</span></em><a class="headerlink" href="#ml.engine.Part.BEHAVIORAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.engine.Part.BLUEPRINT">
+<span class="sig-name descname"><span class="pre">BLUEPRINT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'blueprint'</span></em><a class="headerlink" href="#ml.engine.Part.BLUEPRINT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ml.engine.Part.BehaviorNotAllowedError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BehaviorNotAllowedError</span></span><a class="headerlink" href="#ml.engine.Part.BehaviorNotAllowedError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when behavior() is called on a structural part.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ml.engine.Part.NotExecutableError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NotExecutableError</span></span><a class="headerlink" href="#ml.engine.Part.NotExecutableError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when the main run loop is attempted on a behavioral part.
+The loop can only be started on structural parts.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.engine.Part.STRUCTURAL">
+<span class="sig-name descname"><span class="pre">STRUCTURAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'structural'</span></em><a class="headerlink" href="#ml.engine.Part.STRUCTURAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ml.engine.Part.ValidationError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ValidationError</span></span><a class="headerlink" href="#ml.engine.Part.ValidationError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when an item (Port/EventQueue) fails validation during insertion.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.add_hook">
+<span class="sig-name descname"><span class="pre">add_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hook_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.add_hook" title="Link to this definition"></a></dt>
+<dd><p>Registers a function to be called at a specific lifecycle event.</p>
+<p>This is useful for setting up or tearing down resources that are
+external to the framework’s core logic, such as
+connecting to a physics engine or closing plot windows.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hook_type</strong> – The type of hook, either ‘init’ or ‘term’.</p></li>
+<li><p><strong>func</strong> – The function to register.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the hook type is invalid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.add_part">
+<span class="sig-name descname"><span class="pre">add_part</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">part</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ml.engine.Part" title="ml.engine.Part"><span class="pre">Part</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.add_part" title="Link to this definition"></a></dt>
+<dd><p>Adds a child part to this structural part.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>part</strong> – The child part to add.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If a part with the same identifier already exists in this part.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.behavior">
+<span class="sig-name descname"><span class="pre">behavior</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.behavior" title="Link to this definition"></a></dt>
+<dd><p>Defines the behavior of the part.</p>
+<p>This method should be overridden by subclasses of behavioral parts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#ml.engine.Part.BehaviorNotAllowedError" title="ml.engine.Part.BehaviorNotAllowedError"><strong>BehaviorNotAllowedError</strong></a> – If this part is structural.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.configure">
+<span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.configure" title="Link to this definition"></a></dt>
+<dd><p>Recursively configures the part and all its sub-parts.</p>
+<p>The default behavior is to store the configuration object and pass it
+down to all children. This method can be overridden by subclasses for
+custom configuration logic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>conf</strong> – The configuration object to apply.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.configure_item">
+<span class="sig-name descname"><span class="pre">configure_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.configure_item" title="Link to this definition"></a></dt>
+<dd><p>Configures a Port or EventQueue before it is added to the part.</p>
+<p>This method is meant to be overridden for custom configuration logic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>item</strong> – The Port or EventQueue to configure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.connect">
+<span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ml.engine.Port" title="ml.engine.Port"><span class="pre">Port</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">slave_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ml.engine.Port" title="ml.engine.Port"><span class="pre">Port</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.connect" title="Link to this definition"></a></dt>
+<dd><p>Connects two ports, creating an interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>master_port</strong> (<a class="reference internal" href="#ml.engine.Port" title="ml.engine.Port"><em>Port</em></a>) – The source port for the data transfer.</p></li>
+<li><p><strong>slave_port</strong> (<a class="reference internal" href="#ml.engine.Port" title="ml.engine.Port"><em>Port</em></a>) – The destination port for the data transfer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If the port connection is invalid.</p></li>
+<li><p><a class="reference internal" href="#ml.engine.Interface.ValidationError" title="ml.engine.Interface.ValidationError"><strong>Interface.ValidationError</strong></a> – If the ports are incompatible.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.connect_event_queue">
+<span class="sig-name descname"><span class="pre">connect_event_queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ml.engine.EventQueue" title="ml.engine.EventQueue"><span class="pre">EventQueue</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">slave_queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ml.engine.EventQueue" title="ml.engine.EventQueue"><span class="pre">EventQueue</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.connect_event_queue" title="Link to this definition"></a></dt>
+<dd><p>Connects an event source or a parent queue to a child queue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>master_queue</strong> (<a class="reference internal" href="#ml.engine.EventQueue" title="ml.engine.EventQueue"><em>EventQueue</em></a>) – The source queue for the event transfer.</p></li>
+<li><p><strong>slave_queue</strong> (<a class="reference internal" href="#ml.engine.EventQueue" title="ml.engine.EventQueue"><em>EventQueue</em></a>) – The destination queue for the event transfer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If the slave queue does not belong to this part or its children, or if the connection is invalid.</p></li>
+<li><p><a class="reference internal" href="#ml.engine.EventInterface.ValidationError" title="ml.engine.EventInterface.ValidationError"><strong>EventInterface.ValidationError</strong></a> – If the queues are incompatible.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.connect_event_source">
+<span class="sig-name descname"><span class="pre">connect_event_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ml.engine.EventSource" title="ml.engine.EventSource"><span class="pre">EventSource</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_queue_identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.connect_event_source" title="Link to this definition"></a></dt>
+<dd><p>Connects an external event source to one of this part’s input queues.</p>
+<p>This establishes both the data path (via an EventInterface) and the
+synchronization signal for waking up the part’s run loop.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<a class="reference internal" href="#ml.engine.EventSource" title="ml.engine.EventSource"><em>EventSource</em></a>) – The EventSource to connect.</p></li>
+<li><p><strong>target_queue_identifier</strong> (<em>str</em>) – The identifier of the target input
+queue on this part.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>KeyError</strong> – If the target queue identifier is not found.</p></li>
+<li><p><a class="reference internal" href="#ml.engine.EventInterface.ValidationError" title="ml.engine.EventInterface.ValidationError"><strong>EventInterface.ValidationError</strong></a> – If the event source queue and target queue are incompatible.</p></li>
+<li><p><strong>ValueError</strong> – If the connection is invalid.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.execute" title="Link to this definition"></a></dt>
+<dd><p>Executes a single cycle of the part.
+For structural parts, it propagates inputs and runs the inner loop once.
+For behavioral parts, it calls the behavior() method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Exception</strong> – If the behavioral part’s <cite>behavior</cite> method raises an exception.</p></li>
+<li><p><a class="reference internal" href="#ml.engine.Port.PayloadError" title="ml.engine.Port.PayloadError"><strong>Port.PayloadError</strong></a> – If a data transfer fails due to type mismatch.</p></li>
+<li><p><a class="reference internal" href="#ml.engine.EventQueue.PayloadError" title="ml.engine.EventQueue.PayloadError"><strong>EventQueue.PayloadError</strong></a> – If an event transfer fails due to type mismatch.</p></li>
+<li><p><a class="reference internal" href="#ml.engine.Port.OverwriteError" title="ml.engine.Port.OverwriteError"><strong>Port.OverwriteError</strong></a> – If a data transfer attempts to overwrite an unconsumed port payload.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.get_event_queue">
+<span class="sig-name descname"><span class="pre">get_event_queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ml.engine.EventQueue" title="ml.engine.EventQueue"><span class="pre">EventQueue</span></a></span></span><a class="headerlink" href="#ml.engine.Part.get_event_queue" title="Link to this definition"></a></dt>
+<dd><p>Retrieves an event queue by its identifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>identifier</strong> (<em>str</em>) – The name of the event queue to retrieve.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The requested event queue instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#ml.engine.EventQueue" title="ml.engine.EventQueue">EventQueue</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>KeyError</strong> – If the event queue is not found.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.get_event_queues">
+<span class="sig-name descname"><span class="pre">get_event_queues</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ml.engine.EventQueue" title="ml.engine.EventQueue"><span class="pre">EventQueue</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#ml.engine.Part.get_event_queues" title="Link to this definition"></a></dt>
+<dd><p>Retrieves all event queues of this part.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of all event queue instances belonging to this part.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[<a class="reference internal" href="#ml.engine.EventQueue" title="ml.engine.EventQueue">EventQueue</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.get_exception">
+<span class="sig-name descname"><span class="pre">get_exception</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Exception</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#ml.engine.Part.get_exception" title="Link to this definition"></a></dt>
+<dd><p>Gets the exception that caused the run loop to terminate, if any.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The exception object if one occurred, otherwise None.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Optional[Exception]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.get_full_identifier">
+<span class="sig-name descname"><span class="pre">get_full_identifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#ml.engine.Part.get_full_identifier" title="Link to this definition"></a></dt>
+<dd><p>Gets the fully qualified identifier of the part.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The fully qualified identifier, including parent hierarchy.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.get_identifier">
+<span class="sig-name descname"><span class="pre">get_identifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#ml.engine.Part.get_identifier" title="Link to this definition"></a></dt>
+<dd><p>Gets the local identifier of the part.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The local identifier of the part.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.get_interfaces">
+<span class="sig-name descname"><span class="pre">get_interfaces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ml.engine.Interface" title="ml.engine.Interface"><span class="pre">Interface</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#ml.engine.Part.get_interfaces" title="Link to this definition"></a></dt>
+<dd><p>Retrieves all data port interfaces (connections) of this structural part.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of all interface instances.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[<a class="reference internal" href="#ml.engine.Interface" title="ml.engine.Interface">Interface</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.get_part">
+<span class="sig-name descname"><span class="pre">get_part</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ml.engine.Part" title="ml.engine.Part"><span class="pre">Part</span></a></span></span><a class="headerlink" href="#ml.engine.Part.get_part" title="Link to this definition"></a></dt>
+<dd><p>Retrieves an inner part by its identifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>identifier</strong> (<em>str</em>) – The name of the inner part to retrieve.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The requested inner part instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#ml.engine.Part" title="ml.engine.Part">Part</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>KeyError</strong> – If the part is not found.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.get_parts">
+<span class="sig-name descname"><span class="pre">get_parts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ml.engine.Part" title="ml.engine.Part"><span class="pre">Part</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#ml.engine.Part.get_parts" title="Link to this definition"></a></dt>
+<dd><p>Retrieves all inner parts of this structural part.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of all inner part instances.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[<a class="reference internal" href="#ml.engine.Part" title="ml.engine.Part">Part</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.get_port">
+<span class="sig-name descname"><span class="pre">get_port</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ml.engine.Port" title="ml.engine.Port"><span class="pre">Port</span></a></span></span><a class="headerlink" href="#ml.engine.Part.get_port" title="Link to this definition"></a></dt>
+<dd><p>Retrieves a port by its identifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>identifier</strong> (<em>str</em>) – The name of the port to retrieve.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The requested port instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#ml.engine.Port" title="ml.engine.Port">Port</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>KeyError</strong> – If the port is not found.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.get_ports">
+<span class="sig-name descname"><span class="pre">get_ports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ml.engine.Port" title="ml.engine.Port"><span class="pre">Port</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#ml.engine.Part.get_ports" title="Link to this definition"></a></dt>
+<dd><p>Retrieves all ports of a given direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>direction</strong> (<em>str</em>) – The direction of ports to retrieve (Port.IN or Port.OUT).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of ports matching the given direction.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="#ml.engine.Port" title="ml.engine.Port">Port</a>]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the direction is invalid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.init">
+<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.init" title="Link to this definition"></a></dt>
+<dd><p>Recursively initializes the part and all its sub-parts.</p>
+<p>This method should be called once on the top-level part before starting
+it. It executes all registered ‘init’ hooks in a top-down
+manner.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.is_running">
+<span class="sig-name descname"><span class="pre">is_running</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#ml.engine.Part.is_running" title="Link to this definition"></a></dt>
+<dd><p>Checks if the part’s execution thread is currently running.</p>
+<p>This is only applicable for structural parts that have been started.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the thread exists and is running, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.read">
+<span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.read" title="Link to this definition"></a></dt>
+<dd><p>Reads data from an input port based on its semantic.</p>
+<p>If the port is <a class="reference internal" href="#ml.engine.Port.NOT_PERSISTENT" title="ml.engine.Port.NOT_PERSISTENT"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Port.NOT_PERSISTENT</span></code></a>, the port must have been updated in the current step.
+If the port is <a class="reference internal" href="#ml.engine.Port.PERSISTENT" title="ml.engine.Port.PERSISTENT"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Port.PERSISTENT</span></code></a>, the last known payload is returned even if the port hasn’t been updated in the current step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>identifier</strong> – The local identifier of the port to read from.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The payload read from the port.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>KeyError</strong> – If the port is not found.</p></li>
+<li><p><a class="reference internal" href="#ml.engine.Port.StaleReadError" title="ml.engine.Port.StaleReadError"><strong>Port.StaleReadError</strong></a> – If the port is NOT_PERSISTENT and has not been updated.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stop_condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ml.engine.Part" title="ml.engine.Part"><span class="pre">Part</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.start" title="Link to this definition"></a></dt>
+<dd><p>Starts the part’s run loop in a new thread.</p>
+<p>This method is only applicable to structural parts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>stop_condition</strong> – A callable that returns True to stop the loop.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="#ml.engine.Part.NotExecutableError" title="ml.engine.Part.NotExecutableError"><strong>NotExecutableError</strong></a> – If called on a behavioral part.</p></li>
+<li><p><strong>RuntimeError</strong> – If the part is already running.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.stop" title="Link to this definition"></a></dt>
+<dd><p>Signals the part’s run loop and all its children to stop.
+This is a non-blocking call. Use wait() to block until the thread finishes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.term">
+<span class="sig-name descname"><span class="pre">term</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.term" title="Link to this definition"></a></dt>
+<dd><p>Recursively terminates the part and all its sub-parts.</p>
+<p>This method should be called once on the top-level part after it
+has finished its execution. It executes all registered ‘term’ hooks in a
+top-down manner.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.trace_log">
+<span class="sig-name descname"><span class="pre">trace_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.trace_log" title="Link to this definition"></a></dt>
+<dd><p>Logs a custom message to the global tracer from within a part’s behavior.</p>
+<p>This is the recommended way for user-defined parts to create trace output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> – The string message to log.</p></li>
+<li><p><strong>details</strong> – An optional dictionary of key-value pairs
+for structured data.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.validate_insertion">
+<span class="sig-name descname"><span class="pre">validate_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#ml.engine.Part.validate_insertion" title="Link to this definition"></a></dt>
+<dd><p>Validates if an item (Port or EventQueue) can be added to this part.</p>
+<p>This method is meant to be overridden for custom validation logic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>item</strong> – The item to validate (Port or EventQueue).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the item is valid, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.wait">
+<span class="sig-name descname"><span class="pre">wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.wait" title="Link to this definition"></a></dt>
+<dd><p>Waits for the part’s run thread to complete.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeout</strong> – The maximum time in seconds to wait
+for the thread to complete.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.wait_for_ready">
+<span class="sig-name descname"><span class="pre">wait_for_ready</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.wait_for_ready" title="Link to this definition"></a></dt>
+<dd><p>Waits for all managed worker processes to signal that they are ready.</p>
+<p>This method is only applicable for structural parts using a process-based
+execution strategy (i.e., <cite>mode=’process’</cite>). It blocks until each worker
+process has completed its initialization and sent a ready signal.</p>
+<p>If called on a part that uses a sequential or thread-based strategy,
+this method will do nothing and return immediately.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.wire">
+<span class="sig-name descname"><span class="pre">wire</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slave_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.wire" title="Link to this definition"></a></dt>
+<dd><p>Connects two ports using their string paths relative to this part.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>master_path</strong> – Path to the source port (e.g., ‘source.clk’ or ‘in_port’).</p></li>
+<li><p><strong>slave_path</strong> – Path to the destination port (e.g., ‘dut.clk’ or ‘out_port’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If a path cannot be resolved to a port.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.wire_event">
+<span class="sig-name descname"><span class="pre">wire_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slave_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.wire_event" title="Link to this definition"></a></dt>
+<dd><p>Connects two event queues using their string paths relative to this part.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>master_path</strong> – Path to the source queue (e.g., ‘timer_q’ or ‘source.out_q’).</p></li>
+<li><p><strong>slave_path</strong> – Path to the destination queue (e.g., ‘sync.timer_in’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If a path cannot be resolved to an event queue.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Part.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Part.write" title="Link to this definition"></a></dt>
+<dd><p>Writes data to an output port.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>identifier</strong> – The local identifier of the port to write to.</p></li>
+<li><p><strong>payload</strong> – The data to write.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>KeyError</strong> – If the port is not found.</p></li>
+<li><p><a class="reference internal" href="#ml.engine.Port.PayloadError" title="ml.engine.Port.PayloadError"><strong>Port.PayloadError</strong></a> – If the payload type does not match the port’s declared type.</p></li>
+<li><p><a class="reference internal" href="#ml.engine.Port.OverwriteError" title="ml.engine.Port.OverwriteError"><strong>Port.OverwriteError</strong></a> – If the port has already been updated in the current step, or its payload hasn’t been consumed in the previous steps.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ml.engine.Port">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.engine.</span></span><span class="sig-name descname"><span class="pre">Port</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">semantic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'not</span> <span class="pre">persistent'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload_check</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Port" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents an input or output port for a Part.</p>
+<p>Methods meant to be overridden:</p>
+<ul class="simple">
+<li><p>validate_connection: Validates if this port can be connected to a specific slave port.</p></li>
+</ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.engine.Port.IN">
+<span class="sig-name descname"><span class="pre">IN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'input'</span></em><a class="headerlink" href="#ml.engine.Port.IN" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.engine.Port.NOT_PERSISTENT">
+<span class="sig-name descname"><span class="pre">NOT_PERSISTENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'not</span> <span class="pre">persistent'</span></em><a class="headerlink" href="#ml.engine.Port.NOT_PERSISTENT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.engine.Port.OUT">
+<span class="sig-name descname"><span class="pre">OUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'output'</span></em><a class="headerlink" href="#ml.engine.Port.OUT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ml.engine.Port.OverwriteError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OverwriteError</span></span><a class="headerlink" href="#ml.engine.Port.OverwriteError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when set() is called on an already updated Port.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.engine.Port.PERSISTENT">
+<span class="sig-name descname"><span class="pre">PERSISTENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'persistent'</span></em><a class="headerlink" href="#ml.engine.Port.PERSISTENT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.engine.Port.Parent">
+<span class="sig-name descname"><span class="pre">Parent</span></span><a class="headerlink" href="#ml.engine.Port.Parent" title="Link to this definition"></a></dt>
+<dd><p>alias of <code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ml.engine.Port.PayloadError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PayloadError</span></span><a class="headerlink" href="#ml.engine.Port.PayloadError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when set() is called with a payload of incorrect type.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ml.engine.Port.StaleReadError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StaleReadError</span></span><a class="headerlink" href="#ml.engine.Port.StaleReadError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when get() is called on a port that has not been updated.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Port.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#ml.engine.Port.get" title="Link to this definition"></a></dt>
+<dd><p>Retrieves the payload from the port. This is a non-destructive read;
+the ‘updated’ flag is cleared by the engine after the owning part’s
+<cite>execute()</cite> method has completed for the current step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The payload currently held by the port.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Any</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#ml.engine.Port.StaleReadError" title="ml.engine.Port.StaleReadError"><strong>Port.StaleReadError</strong></a> – If the port has not been updated.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Port.get_direction">
+<span class="sig-name descname"><span class="pre">get_direction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#ml.engine.Port.get_direction" title="Link to this definition"></a></dt>
+<dd><p>Gets the direction of the port.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The direction of the port (e.g., ‘input’ or ‘output’).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Port.get_full_identifier">
+<span class="sig-name descname"><span class="pre">get_full_identifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#ml.engine.Port.get_full_identifier" title="Link to this definition"></a></dt>
+<dd><p>Gets the fully qualified identifier of the port.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The fully qualified identifier, including parent hierarchy.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Port.get_identifier">
+<span class="sig-name descname"><span class="pre">get_identifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#ml.engine.Port.get_identifier" title="Link to this definition"></a></dt>
+<dd><p>Gets the local identifier of the port.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The local identifier of the port.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Port.get_parent">
+<span class="sig-name descname"><span class="pre">get_parent</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Parent</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#ml.engine.Port.get_parent" title="Link to this definition"></a></dt>
+<dd><p>Gets the parent component of the port.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The parent object (typically a Part), or None if not set.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Optional[Parent]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Port.get_semantic">
+<span class="sig-name descname"><span class="pre">get_semantic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#ml.engine.Port.get_semantic" title="Link to this definition"></a></dt>
+<dd><p>Gets the semantic type of the port.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The semantic type (e.g., ‘persistent’ or ‘not persistent’).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Port.get_type">
+<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#ml.engine.Port.get_type" title="Link to this definition"></a></dt>
+<dd><p>Gets the expected type of the payload.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The expected type, or None if no type has been specified.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Optional[Type]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Port.is_updated">
+<span class="sig-name descname"><span class="pre">is_updated</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#ml.engine.Port.is_updated" title="Link to this definition"></a></dt>
+<dd><p>Checks if the port’s payload has been updated since the last clear.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the port holds new data, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Port.peek">
+<span class="sig-name descname"><span class="pre">peek</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#ml.engine.Port.peek" title="Link to this definition"></a></dt>
+<dd><p>Retrieves the payload from the port without checking the ‘updated’ flag.
+This is a non-destructive read intended for monitoring or debugging from
+outside the synchronous dataflow execution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The payload currently held by the port.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Port.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.engine.Port.set" title="Link to this definition"></a></dt>
+<dd><p>Sets the payload of the port and marks it as updated.</p>
+<p>This method is called by the framework during data transfers and should
+be called by the user inside a <cite>behavior()</cite> method to set the value of
+an output port.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>payload</strong> – The new payload for the port.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="#ml.engine.Port.OverwriteError" title="ml.engine.Port.OverwriteError"><strong>Port.OverwriteError</strong></a> – If the port has already been updated in the current step, or its payload hasn’t been consumed in the previous steps.</p></li>
+<li><p><a class="reference internal" href="#ml.engine.Port.PayloadError" title="ml.engine.Port.PayloadError"><strong>Port.PayloadError</strong></a> – If the payload type does not match the port’s declared type.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.engine.Port.validate_connection">
+<span class="sig-name descname"><span class="pre">validate_connection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slave_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ml.engine.Port" title="ml.engine.Port"><span class="pre">Port</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#ml.engine.Port.validate_connection" title="Link to this definition"></a></dt>
+<dd><p>Validates if this port can be connected to the given slave port.</p>
+<p>This method is meant to be overridden for custom validation logic.
+The default implementation checks if the master port’s type is a
+subclass of the slave port’s type, if both are specified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>slave_port</strong> – The slave port to connect to.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the connection is valid, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="data_api.html" class="btn btn-neutral float-left" title="Data API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="enums_api.html" class="btn btn-neutral float-right" title="Enums API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+Strategies API
+==============
+
+These are the built-in execution strategies.
+
+.. automodule:: ml.strategies
+   :members:
+   :undoc-members:
+   :show-inheritance:

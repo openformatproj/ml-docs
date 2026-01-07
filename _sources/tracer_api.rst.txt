@@ -1,0 +1,9 @@
+Tracer API
+==========
+
+This module contains the centralized logging utility for the simulation engine.
+
+.. automodule:: ml.tracer
+   :members:
+   :undoc-members:
+   :show-inheritance:

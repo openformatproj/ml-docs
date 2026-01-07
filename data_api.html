@@ -1,0 +1,227 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data API &mdash; ml 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Engine API" href="engine_api.html" />
+    <link rel="prev" title="openformatproj/ml documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ml
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#ml.data.Number"><code class="docutils literal notranslate"><span class="pre">Number</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ml.data.Number.DECIMAL"><code class="docutils literal notranslate"><span class="pre">Number.DECIMAL</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.data.Number.FLOAT"><code class="docutils literal notranslate"><span class="pre">Number.FLOAT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.data.Number.NUMPY"><code class="docutils literal notranslate"><span class="pre">Number.NUMPY</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.data.Number.configure"><code class="docutils literal notranslate"><span class="pre">Number.configure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.data.Number.precision"><code class="docutils literal notranslate"><span class="pre">Number.precision()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.data.Number.set_context"><code class="docutils literal notranslate"><span class="pre">Number.set_context()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.data.configure"><code class="docutils literal notranslate"><span class="pre">configure()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.data.register_data_type"><code class="docutils literal notranslate"><span class="pre">register_data_type()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.data.set_context"><code class="docutils literal notranslate"><span class="pre">set_context()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="engine_api.html">Engine API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enums_api.html">Enums API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="event_sources_api.html">Event Sources API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts_api.html">Parts API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategies_api.html">Strategies API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tracer_api.html">Tracer API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ml</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Data API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/data_api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="data-api">
+<h1>Data API<a class="headerlink" href="#data-api" title="Link to this heading"></a></h1>
+<p>These are the built-in classes and services to manage dataflow types.</p>
+<dl class="py class" id="module-ml.data">
+<dt class="sig sig-object py" id="ml.data.Number">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.data.</span></span><span class="sig-name descname"><span class="pre">Number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.data.Number" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A wrapper class for numeric types to centralize control over precision
+and implementation, primarily for <cite>Decimal</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.data.Number.DECIMAL">
+<span class="sig-name descname"><span class="pre">DECIMAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DECIMAL'</span></em><a class="headerlink" href="#ml.data.Number.DECIMAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.data.Number.FLOAT">
+<span class="sig-name descname"><span class="pre">FLOAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'FLOAT'</span></em><a class="headerlink" href="#ml.data.Number.FLOAT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.data.Number.NUMPY">
+<span class="sig-name descname"><span class="pre">NUMPY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NUMPY'</span></em><a class="headerlink" href="#ml.data.Number.NUMPY" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.data.Number.configure">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.data.Number.configure" title="Link to this definition"></a></dt>
+<dd><p>Configures the global precision for Number operations based on the
+provided configuration object. This should be called once at startup.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>conf</strong> – The configuration object containing ‘NUMBER_IMPLEMENTATION’
+and optionally ‘DECIMAL_CONTEXT_PRECISION’.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If ‘NUMBER_IMPLEMENTATION’ is missing or if ‘DECIMAL_CONTEXT_PRECISION’
+    is missing when implementation is DECIMAL.</p></li>
+<li><p><strong>NotImplementedError</strong> – If the implementation is not supported.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.data.Number.precision">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">precision</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#ml.data.Number.precision" title="Link to this definition"></a></dt>
+<dd><p>Returns the configured precision.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The configured precision.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – If called before configure() for DECIMAL implementation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.data.Number.set_context">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_context</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.data.Number.set_context" title="Link to this definition"></a></dt>
+<dd><p>Sets the thread-local decimal precision for PythonDecimal operations.
+This is only active if the implementation is ‘DECIMAL’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – If called before configure().</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ml.data.configure">
+<span class="sig-prename descclassname"><span class="pre">ml.data.</span></span><span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.data.configure" title="Link to this definition"></a></dt>
+<dd><p>Calls the configure() static method on all registered classes.
+This should be called once per process.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ml.data.register_data_type">
+<span class="sig-prename descclassname"><span class="pre">ml.data.</span></span><span class="sig-name descname"><span class="pre">register_data_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.data.register_data_type" title="Link to this definition"></a></dt>
+<dd><p>Registers a class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cls</strong> (<em>Type</em>) – The class to register.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ml.data.set_context">
+<span class="sig-prename descclassname"><span class="pre">ml.data.</span></span><span class="sig-name descname"><span class="pre">set_context</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.data.set_context" title="Link to this definition"></a></dt>
+<dd><p>Calls the set_context() static method on all registered classes.
+This should be called once per process/thread.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="openformatproj/ml documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="engine_api.html" class="btn btn-neutral float-right" title="Engine API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

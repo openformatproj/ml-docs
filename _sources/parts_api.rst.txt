@@ -1,0 +1,10 @@
+Parts API
+=========
+
+These are the built-in parts.
+
+.. automodule:: ml.parts
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

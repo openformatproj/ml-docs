@@ -1,0 +1,240 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parts API &mdash; ml 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Strategies API" href="strategies_api.html" />
+    <link rel="prev" title="Event Sources API" href="event_sources_api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ml
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="data_api.html">Data API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engine_api.html">Engine API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enums_api.html">Enums API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="event_sources_api.html">Event Sources API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Parts API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#ml.parts.Control_Element"><code class="docutils literal notranslate"><span class="pre">Control_Element</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.parts.EventToDataSynchronizer"><code class="docutils literal notranslate"><span class="pre">EventToDataSynchronizer</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ml.parts.EventToDataSynchronizer.behavior"><code class="docutils literal notranslate"><span class="pre">EventToDataSynchronizer.behavior()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.parts.Operator"><code class="docutils literal notranslate"><span class="pre">Operator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ml.parts.Operator.behavior"><code class="docutils literal notranslate"><span class="pre">Operator.behavior()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.parts.PID"><code class="docutils literal notranslate"><span class="pre">PID</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ml.parts.PID.behavior"><code class="docutils literal notranslate"><span class="pre">PID.behavior()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.parts.PIDConf"><code class="docutils literal notranslate"><span class="pre">PIDConf</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="strategies_api.html">Strategies API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tracer_api.html">Tracer API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ml</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Parts API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/parts_api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="parts-api">
+<h1>Parts API<a class="headerlink" href="#parts-api" title="Link to this heading"></a></h1>
+<p>These are the built-in parts.</p>
+<dl class="py class" id="module-ml.parts">
+<dt class="sig sig-object py" id="ml.parts.Control_Element">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.parts.</span></span><span class="sig-name descname"><span class="pre">Control_Element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf:</span> <span class="pre">~ml.parts.PIDConf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_strategy:</span> <span class="pre">callable</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">&lt;ml.strategies.Execution</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.parts.Control_Element" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="engine_api.html#ml.engine.Part" title="ml.engine.Part"><code class="xref py py-class docutils literal notranslate"><span class="pre">Part</span></code></a></p>
+<p>A structural part that composes a PID controller and an error calculation
+operator to form a complete, standard control loop element.</p>
+<p>This part is a reusable block for feedback control systems.</p>
+<dl class="simple">
+<dt>Ports:</dt><dd><ul class="simple">
+<li><p><cite>time</cite> (IN): The current simulation time, passed to the PID.</p></li>
+<li><p><cite>setpoint</cite> (IN): The desired value for the system.</p></li>
+<li><p><cite>measure</cite> (IN): The current measured value from the system.</p></li>
+<li><p><cite>kp_in</cite> (IN): For dynamically updating the proportional gain.</p></li>
+<li><p><cite>ki_in</cite> (IN): For dynamically updating the integral gain.</p></li>
+<li><p><cite>kd_in</cite> (IN): For dynamically updating the derivative gain.</p></li>
+<li><p><cite>actuation</cite> (OUT): The final control signal to be sent to the plant.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ml.parts.EventToDataSynchronizer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.parts.</span></span><span class="sig-name descname"><span class="pre">EventToDataSynchronizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_queue_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_port_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.parts.EventToDataSynchronizer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="engine_api.html#ml.engine.Part" title="ml.engine.Part"><code class="xref py py-class docutils literal notranslate"><span class="pre">Part</span></code></a></p>
+<p>A generic behavioral part that synchronizes an asynchronous event to the
+synchronous dataflow domain.</p>
+<p>It consumes an event from a specified input EventQueue, extracts its
+payload, and sets that payload on a specified output Port. This is a
+common pattern for converting triggers (like a timer tick) into data
+that can be processed by dataflow-driven parts in the next simulation step.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.parts.EventToDataSynchronizer.behavior">
+<span class="sig-name descname"><span class="pre">behavior</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.parts.EventToDataSynchronizer.behavior" title="Link to this definition"></a></dt>
+<dd><p>Pops a single event from the input queue and sets its payload on the
+output port.</p>
+<p>This method is called by the engine when the part is scheduled to run,
+which by default happens when its input event queue is not empty.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ml.parts.Operator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.parts.</span></span><span class="sig-name descname"><span class="pre">Operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">callable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.parts.Operator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="engine_api.html#ml.engine.Part" title="ml.engine.Part"><code class="xref py py-class docutils literal notranslate"><span class="pre">Part</span></code></a></p>
+<p>A generic, stateless behavioral part that applies a user-defined function
+to its inputs.</p>
+<p>It waits for all of its input ports to receive new data, then calls the
+provided operation <cite>op</cite> with the input values and sets the result on its
+single output port.</p>
+<dl class="simple">
+<dt>Ports:</dt><dd><ul class="simple">
+<li><p><cite>in_0</cite>, <cite>in_1</cite>, …: A number of input ports defined by <cite>inputs</cite>.</p></li>
+<li><p><cite>out</cite>: A single output port.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.parts.Operator.behavior">
+<span class="sig-name descname"><span class="pre">behavior</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.parts.Operator.behavior" title="Link to this definition"></a></dt>
+<dd><p>Collects values from all input ports, applies the user-defined
+operation to them, and sets the result on the output port.</p>
+<p>The part’s custom scheduling condition ensures this method only runs
+when all input ports have been updated, so no <cite>is_updated()</cite> checks
+are needed here.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ml.parts.PID">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.parts.</span></span><span class="sig-name descname"><span class="pre">PID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ml.parts.PIDConf" title="ml.parts.PIDConf"><span class="pre">PIDConf</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.parts.PID" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="engine_api.html#ml.engine.Part" title="ml.engine.Part"><code class="xref py py-class docutils literal notranslate"><span class="pre">Part</span></code></a></p>
+<p>A behavioral part implementing a standard PID (Proportional-Integral-Derivative)
+controller.</p>
+<p>It calculates an actuation value based on an error signal and the passage
+of time. The time step <cite>dt</cite> is calculated dynamically from successive
+values on the <cite>time</cite> input port.</p>
+<dl class="simple">
+<dt>Ports:</dt><dd><ul class="simple">
+<li><p><cite>time</cite> (IN): Receives the current simulation time.</p></li>
+<li><p><cite>error</cite> (IN): Receives the current error signal (setpoint - measurement).</p></li>
+<li><p><cite>kp_in</cite> (IN): Receives updates for the proportional gain.</p></li>
+<li><p><cite>ki_in</cite> (IN): Receives updates for the integral gain.</p></li>
+<li><p><cite>kd_in</cite> (IN): Receives updates for the derivative gain.</p></li>
+<li><p><cite>actuation</cite> (OUT): Outputs the calculated control signal.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.parts.PID.behavior">
+<span class="sig-name descname"><span class="pre">behavior</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.parts.PID.behavior" title="Link to this definition"></a></dt>
+<dd><p>Calculates the PID output. The scheduler ensures both <cite>time</cite> and <cite>error</cite>
+ports are updated before this method is called. It handles the initial
+state gracefully and calculates <cite>dt</cite> dynamically. Gain values are updated
+whenever their respective ports receive new data.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ml.parts.PIDConf">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.parts.</span></span><span class="sig-name descname"><span class="pre">PIDConf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_kp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_ki</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_kd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_integral</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integral_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integral_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.parts.PIDConf" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Configuration object for PID controller parameters.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="event_sources_api.html" class="btn btn-neutral float-left" title="Event Sources API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="strategies_api.html" class="btn btn-neutral float-right" title="Strategies API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

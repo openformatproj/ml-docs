@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tracer API &mdash; ml 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Strategies API" href="strategies_api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ml
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="data_api.html">Data API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engine_api.html">Engine API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enums_api.html">Enums API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="event_sources_api.html">Event Sources API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts_api.html">Parts API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategies_api.html">Strategies API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tracer API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#ml.tracer.LocalLogRecord"><code class="docutils literal notranslate"><span class="pre">LocalLogRecord</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.LocalLogRecord.component_id"><code class="docutils literal notranslate"><span class="pre">LocalLogRecord.component_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.LocalLogRecord.details"><code class="docutils literal notranslate"><span class="pre">LocalLogRecord.details</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.LocalLogRecord.event"><code class="docutils literal notranslate"><span class="pre">LocalLogRecord.event</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.LocalLogRecord.event_id"><code class="docutils literal notranslate"><span class="pre">LocalLogRecord.event_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.LocalLogRecord.level"><code class="docutils literal notranslate"><span class="pre">LocalLogRecord.level</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.LocalLogRecord.local_event_id"><code class="docutils literal notranslate"><span class="pre">LocalLogRecord.local_event_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.LocalLogRecord.process_name"><code class="docutils literal notranslate"><span class="pre">LocalLogRecord.process_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.LocalLogRecord.thread_name"><code class="docutils literal notranslate"><span class="pre">LocalLogRecord.thread_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.LocalLogRecord.tick"><code class="docutils literal notranslate"><span class="pre">LocalLogRecord.tick</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.tracer.LogRecord"><code class="docutils literal notranslate"><span class="pre">LogRecord</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.LogRecord.component_id"><code class="docutils literal notranslate"><span class="pre">LogRecord.component_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.LogRecord.details"><code class="docutils literal notranslate"><span class="pre">LogRecord.details</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.LogRecord.event"><code class="docutils literal notranslate"><span class="pre">LogRecord.event</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.LogRecord.level"><code class="docutils literal notranslate"><span class="pre">LogRecord.level</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.LogRecord.thread_name"><code class="docutils literal notranslate"><span class="pre">LogRecord.thread_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.LogRecord.timestamp"><code class="docutils literal notranslate"><span class="pre">LogRecord.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.tracer.TimedEvent"><code class="docutils literal notranslate"><span class="pre">TimedEvent</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.TimedEvent.complete"><code class="docutils literal notranslate"><span class="pre">TimedEvent.complete()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.tracer.Tracer"><code class="docutils literal notranslate"><span class="pre">Tracer</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.Tracer.configure_for_worker"><code class="docutils literal notranslate"><span class="pre">Tracer.configure_for_worker()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.Tracer.get_current_event_id"><code class="docutils literal notranslate"><span class="pre">Tracer.get_current_event_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.Tracer.get_external_queues"><code class="docutils literal notranslate"><span class="pre">Tracer.get_external_queues()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.Tracer.log"><code class="docutils literal notranslate"><span class="pre">Tracer.log()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.Tracer.set_parent_event_id"><code class="docutils literal notranslate"><span class="pre">Tracer.set_parent_event_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.Tracer.start"><code class="docutils literal notranslate"><span class="pre">Tracer.start()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ml.tracer.Tracer.stop"><code class="docutils literal notranslate"><span class="pre">Tracer.stop()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.tracer.analyze_trace_log"><code class="docutils literal notranslate"><span class="pre">analyze_trace_log()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ml.tracer.merge_trace_logs"><code class="docutils literal notranslate"><span class="pre">merge_trace_logs()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ml</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tracer API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tracer_api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tracer-api">
+<h1>Tracer API<a class="headerlink" href="#tracer-api" title="Link to this heading"></a></h1>
+<p>This module contains the centralized logging utility for the simulation engine.</p>
+<dl class="py class" id="module-ml.tracer">
+<dt class="sig sig-object py" id="ml.tracer.LocalLogRecord">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.tracer.</span></span><span class="sig-name descname"><span class="pre">LocalLogRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tick</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_event_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.tracer.LocalLogRecord" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.tracer.LocalLogRecord.component_id">
+<span class="sig-name descname"><span class="pre">component_id</span></span><a class="headerlink" href="#ml.tracer.LocalLogRecord.component_id" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.tracer.LocalLogRecord.details">
+<span class="sig-name descname"><span class="pre">details</span></span><a class="headerlink" href="#ml.tracer.LocalLogRecord.details" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.tracer.LocalLogRecord.event">
+<span class="sig-name descname"><span class="pre">event</span></span><a class="headerlink" href="#ml.tracer.LocalLogRecord.event" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.tracer.LocalLogRecord.event_id">
+<span class="sig-name descname"><span class="pre">event_id</span></span><a class="headerlink" href="#ml.tracer.LocalLogRecord.event_id" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.tracer.LocalLogRecord.level">
+<span class="sig-name descname"><span class="pre">level</span></span><a class="headerlink" href="#ml.tracer.LocalLogRecord.level" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.tracer.LocalLogRecord.local_event_id">
+<span class="sig-name descname"><span class="pre">local_event_id</span></span><a class="headerlink" href="#ml.tracer.LocalLogRecord.local_event_id" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 8</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.tracer.LocalLogRecord.process_name">
+<span class="sig-name descname"><span class="pre">process_name</span></span><a class="headerlink" href="#ml.tracer.LocalLogRecord.process_name" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 7</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.tracer.LocalLogRecord.thread_name">
+<span class="sig-name descname"><span class="pre">thread_name</span></span><a class="headerlink" href="#ml.tracer.LocalLogRecord.thread_name" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 6</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.tracer.LocalLogRecord.tick">
+<span class="sig-name descname"><span class="pre">tick</span></span><a class="headerlink" href="#ml.tracer.LocalLogRecord.tick" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ml.tracer.LogRecord">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.tracer.</span></span><span class="sig-name descname"><span class="pre">LogRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.tracer.LogRecord" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.tracer.LogRecord.component_id">
+<span class="sig-name descname"><span class="pre">component_id</span></span><a class="headerlink" href="#ml.tracer.LogRecord.component_id" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.tracer.LogRecord.details">
+<span class="sig-name descname"><span class="pre">details</span></span><a class="headerlink" href="#ml.tracer.LogRecord.details" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.tracer.LogRecord.event">
+<span class="sig-name descname"><span class="pre">event</span></span><a class="headerlink" href="#ml.tracer.LogRecord.event" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.tracer.LogRecord.level">
+<span class="sig-name descname"><span class="pre">level</span></span><a class="headerlink" href="#ml.tracer.LogRecord.level" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.tracer.LogRecord.thread_name">
+<span class="sig-name descname"><span class="pre">thread_name</span></span><a class="headerlink" href="#ml.tracer.LogRecord.thread_name" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ml.tracer.LogRecord.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#ml.tracer.LogRecord.timestamp" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ml.tracer.TimedEvent">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.tracer.</span></span><span class="sig-name descname"><span class="pre">TimedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tick</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.tracer.TimedEvent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a timed event with a start, end, and children.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.tracer.TimedEvent.complete">
+<span class="sig-name descname"><span class="pre">complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">end_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_tick</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.tracer.TimedEvent.complete" title="Link to this definition"></a></dt>
+<dd><p>Marks the event as complete and calculates its duration.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ml.tracer.Tracer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ml.tracer.</span></span><span class="sig-name descname"><span class="pre">Tracer</span></span><a class="headerlink" href="#ml.tracer.Tracer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A thread-safe, centralized logging utility for the simulation engine.</p>
+<p>It buffers log records and periodically flushes them to the console and/or
+a file in a formatted, column-aligned manner.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.tracer.Tracer.configure_for_worker">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">configure_for_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="enums_api.html#ml.enums.LogLevel" title="ml.enums.LogLevel"><span class="pre">LogLevel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Queue</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.tracer.Tracer.configure_for_worker" title="Link to this definition"></a></dt>
+<dd><p>Configures the Tracer instance within a worker process to send logs
+to the shared multiprocessing.Queue. This should be called once at the
+start of each worker process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>level</strong> – The minimum log level to record.</p></li>
+<li><p><strong>log_queue</strong> – The multiprocessing queue to send logs to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.tracer.Tracer.get_current_event_id">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_current_event_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#ml.tracer.Tracer.get_current_event_id" title="Link to this definition"></a></dt>
+<dd><p>Retrieves the current event ID from the thread-local context.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The current parent event ID, or None if not set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.tracer.Tracer.get_external_queues">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_external_queues</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Queue</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#ml.tracer.Tracer.get_external_queues" title="Link to this definition"></a></dt>
+<dd><p>Returns the multiprocessing queues used by the tracer.
+This is used by the engine to pass queues to worker processes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary containing the log and error queues.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.tracer.Tracer.log">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="enums_api.html#ml.enums.LogLevel" title="ml.enums.LogLevel"><span class="pre">LogLevel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tick</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.tracer.Tracer.log" title="Link to this definition"></a></dt>
+<dd><p>Adds a log record to the buffer.</p>
+<p>This method is thread-safe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>level</strong> – The severity level of the log.</p></li>
+<li><p><strong>component_id</strong> – The identifier of the component logging the event.</p></li>
+<li><p><strong>event</strong> – The name of the event being logged.</p></li>
+<li><p><strong>details</strong> – An optional dictionary of structured data. If a string is
+passed, it will be wrapped in a ‘message’ key.</p></li>
+<li><p><strong>tick</strong> – The optional simulation tick number.</p></li>
+<li><p><strong>event_id</strong> – An optional ID to link this event to a previous START event.
+If provided, a new ID will not be generated.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary containing the log entry details (including timestamp and
+event_id) if successful, or None if the log level is too low.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.tracer.Tracer.set_parent_event_id">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_parent_event_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_event_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.tracer.Tracer.set_parent_event_id" title="Link to this definition"></a></dt>
+<dd><p>Sets the parent event ID in a thread-local context.
+This is used to link events across different execution contexts,
+especially between processes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parent_event_id</strong> – The ID of the parent event.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.tracer.Tracer.start">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="enums_api.html#ml.enums.LogLevel" title="ml.enums.LogLevel"><span class="pre">LogLevel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">flush_interval_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_to_console</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Queue</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Queue</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.tracer.Tracer.start" title="Link to this definition"></a></dt>
+<dd><p>Initializes and starts the tracer thread.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>level</strong> – The minimum log level to record.</p></li>
+<li><p><strong>flush_interval_seconds</strong> – How often to flush logs.</p></li>
+<li><p><strong>output_file</strong> – An optional file path to write logs to.</p></li>
+<li><p><strong>error_file</strong> – An optional file path to write detailed exception
+tracebacks to.</p></li>
+<li><p><strong>log_to_console</strong> – If True, logs will also be printed to the console.</p></li>
+<li><p><strong>log_queue</strong> – An optional multiprocessing.Queue. If provided, the tracer
+will read from this queue (main process only).</p></li>
+<li><p><strong>error_queue</strong> – An optional multiprocessing.Queue for receiving errors
+from worker processes.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ml.tracer.Tracer.stop">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ml.tracer.Tracer.stop" title="Link to this definition"></a></dt>
+<dd><p>Stops the tracer thread and ensures all logs are flushed.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ml.tracer.analyze_trace_log">
+<span class="sig-prename descclassname"><span class="pre">ml.tracer.</span></span><span class="sig-name descname"><span class="pre">analyze_trace_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'text'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Schedule'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.tracer.analyze_trace_log" title="Link to this definition"></a></dt>
+<dd><p>Main analysis function. Parses the log and prints a performance report.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_file</strong> – Path to the simulation trace log file.</p></li>
+<li><p><strong>output_format</strong> – The desired output format. Can be ‘text’, ‘json’, or ‘json:perfetto’.</p></li>
+<li><p><strong>output_file</strong> – Optional path to write the output to. If None, prints to stdout.</p></li>
+<li><p><strong>title</strong> – The title for the Perfetto trace (used if output_format is ‘json:perfetto’).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ml.tracer.merge_trace_logs">
+<span class="sig-prename descclassname"><span class="pre">ml.tracer.</span></span><span class="sig-name descname"><span class="pre">merge_trace_logs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_file_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ml.tracer.merge_trace_logs" title="Link to this definition"></a></dt>
+<dd><p>Merges two Perfetto JSON trace files into a single file with two distinct processes.</p>
+<p>Process 1 (from file 1) is assigned PID 1.
+Process 2 (from file 2) is assigned PID 2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_file_1</strong> – Path to the first input trace file.</p></li>
+<li><p><strong>input_file_2</strong> – Path to the second input trace file.</p></li>
+<li><p><strong>output_file</strong> – Path to the output merged trace file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="strategies_api.html" class="btn btn-neutral float-left" title="Strategies API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
